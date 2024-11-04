@@ -1,0 +1,19 @@
+---
+title: "HAB-DW-Risk-Viewer-README"
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE
+                      , collapse = TRUE
+                      , comment = "#>"
+                      , fig.path = "README-")
+
+```
+
+```{r, echo = FALSE}
+cat(paste0("Last Update: ",Sys.time()))
+```
+Harmful Algal Bloom and Drinking Water Risk Viewer

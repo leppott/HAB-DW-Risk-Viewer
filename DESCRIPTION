@@ -1,0 +1,10 @@
+Package: HAB-DW-Risk-View
+Type: Package
+Title: Harmful Algal Bloom Drinking Water Risk Viewer
+Version: 0.1.0.9001
+Authors@R: person("Erik W.", "Leppo", email="Erik.Leppo@tetratech.com", role=c("aut","cre"))
+Maintainer: Erik W. Leppo <Erik.Leppo@tetratech.com>
+Description: Shiny app to view HAB and Driking Water Risk.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
