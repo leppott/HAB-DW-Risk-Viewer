@@ -1,0 +1,231 @@
+Model,Variable,Importance,Effect_Type,Full_Name,Category
+cyan,Precip8110Ws,0.055276583,Lake,30-year mean precip. in Ws (mm),Climate 
+cyan,SystemSizePop,0.051905739,Lake,Number of People Served,Drinking Water Operation
+cyan,All_Viol_Risk,0.031546554,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+cyan,All_Deficiencies_num,0.031233143,Lake,Total System Deficiencies,Drinking Water Operation
+cyan,HABs_Treat_Score2,0.030374985,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+cyan,HABs_Treat_Num,0.029675255,Lake,Number of HABs Specific Treatment Technologies per DW System,Drinking Water Operation
+cyan,MeanDepth,0.021699322,Lake,Mean Lake Depth,Lake
+cyan,n_DBP_mr,0.021043544,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+cyan,LakeVolume,0.018083392,Lake,Lake Volume,Lake
+cyan,SourceWater_deficiencies_num,0.017450341,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+cyan,Nsurp_kgkm2_Ws,0.017445991,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+cyan,Tmean8110Ws,0.016768492,Lake,30-year (1981-2010) mean temp. (C) in Ws,Climate
+cyan,All_Viol_Freq,0.016321587,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+cyan,FertCat,0.016040781,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+cyan,Treatment_deficiencies_num,0.015568092,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+cyan,Distribution_deficiencies_num,0.015478686,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+cyan,lake_TN,0.014686106,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+cyan,Mgmt_Deficiences_num,0.014591806,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+cyan,LakeArea,0.013572584,Lake,Lake Area,Lake
+cyan,lake_TP,0.013487117,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+cyan,Enforcement_Violation_Notice_num,0.010218019,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+cyan,Lake_Chla,0.008971979,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+cyan,n_turb_exceed,0.002326875,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+cyan,n_Tot_C_tt,0.002149215,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+cyan,AltSource_yn2,0.001264229,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+cyan,n_RTCR_tt,0.001027879,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+cyan,Financial_Deficiencies_num,0.000922597,Lake,Number of Financial Deficiences,Drinking Water Operation
+cyan,ServesSchoolDaycare2,0,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+cyan,RTCR_Risk,0,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+cyan,n_RTCR_mcl,0,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+cyan,n_SWTR_tt,0,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+dbp,All_Viol_Freq,650900.5882,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+dbp,All_Viol_Risk,358722.7881,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+dbp,Mgmt_Deficiences_num,190132.1513,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+dbp,HABs_Treat_Num,169294.5622,Lake,Number of HABs Specific Treatment Technologies per DW System,Drinking Water Operation
+dbp,SystemSizePop,124192.252,Lake,Number of People Served,Drinking Water Operation
+dbp,LakeArea,98105.19303,Lake,Lake Area,Lake
+dbp,HABs_Treat_Score2,66885.74054,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+dbp,Distribution_deficiencies_num,56513.31946,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+dbp,MeanDepth,53901.61783,Lake,Mean Lake Depth,Lake
+dbp,LakeVolume,53754.07114,Lake,Lake Volume,Lake
+dbp,n_turb_exceed,52813.94068,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+dbp,All_Deficiencies_num,50446.08162,Lake,Total System Deficiencies,Drinking Water Operation
+dbp,Treatment_deficiencies_num,49283.27387,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+dbp,FertCat,45335.85816,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+dbp,Precip8110Ws,39227.63039,Lake,30-year mean precip. in Ws (mm),Climate 
+dbp,Tmean8110Ws,26674.56636,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+dbp,lake_TP,24070.04133,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+dbp,Lake_Chla,24062.01122,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+dbp,Nsurp_kgkm2_Ws,20438.79155,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+dbp,SourceWater_deficiencies_num,20065.30934,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+dbp,n_DBP_mr,18073.6506,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+dbp,lake_TN,17842.19912,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+dbp,n_SWTR_tt,17023.07247,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+dbp,Enforcement_Violation_Notice_num,12380.2213,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+dbp,n_Tot_C_tt,12336.55177,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+dbp,AltSource_yn2,1386.914475,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+dbp,Financial_Deficiencies_num,850.696591,Lake,Number of Financial Deficiences,Drinking Water Operation
+dbp,n_RTCR_tt,21.91771828,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+dbp,ServesSchoolDaycare2,0,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+dbp,RTCR_Risk,0,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+dbp,n_RTCR_mcl,0,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+dwops,ServesSchoolDaycare2,0.544401653,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+dwops,HABs_Treat_Score2,0.280707937,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+dwops,Lake_Risk,0.218359698,Lake,Predicted Overall Lake Risk Score (0-1),Lake
+dwops,MeanDepth,0.199672051,Lake,Mean Lake Depth,Lake
+dwops,AltSource_yn2,0.146928561,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+dwops,All_Deficiencies_num,0.126934848,Lake,Total System Deficiencies,Drinking Water Operation
+dwops,SourceWater_deficiencies_num,0.119374964,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+dwops,Tmean8110Ws,0.117300106,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+dwops,Treatment_deficiencies_num,0.107974501,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+dwops,lake_TP,0.105411681,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+dwops,Lake_Chla,0.085599081,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+dwops,Mgmt_Deficiences_num,0.079261211,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+dwops,FertCat,0.073640765,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+dwops,LakeArea,0.066423533,Lake,Lake Area,Lake
+dwops,LakeVolume,0.06503929,Lake,Lake Volume,Lake
+dwops,lake_TN,0.059196249,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+dwops,All_Viol_Risk,0.058343906,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+dwops,Precip8110Ws,0.05813847,Lake,30-year mean precip. in Ws (mm),Climate 
+dwops,All_Viol_Freq,0.057317713,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+dwops,Nsurp_kgkm2_Ws,0.055482429,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+dwops,SystemSizePop,0.053143696,Lake,Number of People Served,Drinking Water Operation
+dwops,Distribution_deficiencies_num,0.027930694,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+dwops,DBP_Viol_Freq,0.023191503,Lake,DW System Disinfection Byproduct Violation Frequency,Drinking Water MCL
+dwops,Enforcement_Violation_Notice_num,0.021215201,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+dwops,n_DBP_mr,0.008803774,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+dwops,Financial_Deficiencies_num,0.007867599,Lake,Number of Financial Deficiences,Drinking Water Operation
+dwops,n_turb_exceed,0.007410705,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+dwops,n_SWTR_tt,0.005706215,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+dwops,n_Tot_C_tt,0.005500352,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+dwops,n_RTCR_tt,0.004216619,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+dwops,NO3_Viol_Freq,0.00245182,Lake,Number of DW System NO3 Violations,Drinking Water MCL
+dwops,n_RTCR_mcl,0.000108146,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+dwops,RTCR_Risk,3.18E-05,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+habdw,Lake_Chla,3.214485615,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+habdw,lake_TP,2.84259634,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+habdw,lake_TN,2.019318279,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+habdw,Nsurp_kgkm2_Ws,0.764999211,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+habdw,FertCat,0.709044105,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+habdw,MeanDepth,0.642773301,Lake,Mean Lake Depth,Lake
+habdw,Tmean8110Ws,0.521739233,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+habdw,Precip8110Ws,0.372744752,Lake,30-year mean precip. in Ws (mm),Climate 
+habdw,LakeVolume,0.264419281,Lake,Lake Volume,Lake
+habdw,LakeArea,0.183014277,Lake,Lake Area,Lake
+habdw,All_Deficiencies_num,0.126201965,Lake,Total System Deficiencies,Drinking Water Operation
+habdw,Treatment_deficiencies_num,0.107048771,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+habdw,All_Viol_Risk,0.103920499,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+habdw,Distribution_deficiencies_num,0.102389086,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+habdw,HABs_Treat_Risk,0.101074831,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+habdw,HABs_Treat_Score2,0.08672851,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+habdw,SystemSizePop,0.086544481,Lake,Number of People Served,Drinking Water Operation
+habdw,HABs_Treat_Num,0.06317868,Lake,Number of HABs Specific Treatment Technologies per DW System,Drinking Water Operation
+habdw,All_Viol_Freq,0.062844327,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+habdw,DBP_Viol_Freq,0.040395646,Lake,DW System Disinfection Byproduct Violation Frequency,Drinking Water MCL
+habdw,SourceWater_deficiencies_num,0.038004845,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+habdw,n_turb_exceed,0.033559945,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+habdw,Mgmt_Deficiences_num,0.031886269,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+habdw,Enforcement_Violation_Notice_num,0.020186037,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+habdw,n_DBP_mr,0.019633527,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+habdw,n_RTCR_tt,0.014250393,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+habdw,n_Tot_C_tt,0.013731823,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+habdw,NO3_Viol_Freq,0.012903786,Lake,Number of DW System NO3 Violations,Drinking Water MCL
+habdw,n_SWTR_tt,0.011203593,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+habdw,AltSource_yn2,0.007564057,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+habdw,Financial_Deficiencies_num,0.006582322,Lake,Number of Financial Deficiences,Drinking Water Operation
+habdw,RTCR_Risk,0.002943437,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+habdw,n_RTCR_mcl,0.002598406,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+habdw,ServesSchoolDaycare2,6.51E-06,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+lake,Lake_Chla,3.214485615,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+lake,lake_TP,2.84259634,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+lake,lake_TN,2.019318279,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+lake,Nsurp_kgkm2_Ws,0.764999211,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+lake,FertCat,0.709044105,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+lake,MeanDepth,0.642773301,Lake,Mean Lake Depth,Lake
+lake,Tmean8110Ws,0.521739233,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+lake,Precip8110Ws,0.372744752,Lake,30-year mean precip. in Ws (mm),Climate 
+lake,LakeVolume,0.264419281,Lake,Lake Volume,Lake
+lake,LakeArea,0.183014277,Lake,Lake Area,Lake
+lake,All_Deficiencies_num,0.126201965,Lake,Total System Deficiencies,Drinking Water Operation
+lake,Treatment_deficiencies_num,0.107048771,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+lake,All_Viol_Risk,0.103920499,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+lake,Distribution_deficiencies_num,0.102389086,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+lake,HABs_Treat_Risk,0.101074831,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+lake,HABs_Treat_Score2,0.08672851,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+lake,SystemSizePop,0.086544481,Lake,Number of People Served,Drinking Water Operation
+lake,HABs_Treat_Num,0.06317868,Lake,Number of HABs Specific Treatment Technologies per DW System,Drinking Water Operation
+lake,All_Viol_Freq,0.062844327,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+lake,DBP_Viol_Freq,0.040395646,Lake,DW System Disinfection Byproduct Violation Frequency,Drinking Water MCL
+lake,SourceWater_deficiencies_num,0.038004845,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+lake,n_turb_exceed,0.033559945,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+lake,Mgmt_Deficiences_num,0.031886269,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+lake,Enforcement_Violation_Notice_num,0.020186037,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+lake,n_DBP_mr,0.019633527,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+lake,n_RTCR_tt,0.014250393,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+lake,n_Tot_C_tt,0.013731823,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+lake,NO3_Viol_Freq,0.012903786,Lake,Number of DW System NO3 Violations,Drinking Water MCL
+lake,n_SWTR_tt,0.011203593,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+lake,AltSource_yn2,0.007564057,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+lake,Financial_Deficiencies_num,0.006582322,Lake,Number of Financial Deficiences,Drinking Water Operation
+lake,RTCR_Risk,0.002943437,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+lake,n_RTCR_mcl,0.002598406,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+lake,ServesSchoolDaycare2,6.51E-06,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+treat,DW_Ops_Risk,3.677839325,Lake,Overall DW System Operations Risk (0-1),Drinking Water Operation
+treat,lake_TP,0.705586234,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+treat,Tmean8110Ws,0.653740614,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+treat,SystemSizePop,0.600681926,Lake,Number of People Served,Drinking Water Operation
+treat,Lake_Risk,0.518623025,Lake,Predicted Overall Lake Risk Score (0-1),Lake
+treat,LakeArea,0.49596677,Lake,Lake Area,Lake
+treat,Nsurp_kgkm2_Ws,0.49086729,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+treat,SourceWater_deficiencies_num,0.466492311,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+treat,Lake_Chla,0.461145721,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+treat,lake_TN,0.439926286,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+treat,All_Viol_Risk,0.427115417,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+treat,Precip8110Ws,0.411711794,Lake,30-year mean precip. in Ws (mm),Climate 
+treat,FertCat,0.388952874,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+treat,LakeVolume,0.379051283,Lake,Lake Volume,Lake
+treat,MeanDepth,0.362040386,Lake,Mean Lake Depth,Lake
+treat,All_Deficiencies_num,0.317499788,Lake,Total System Deficiencies,Drinking Water Operation
+treat,All_Viol_Freq,0.306560885,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+treat,DBP_Viol_Freq,0.304962516,Lake,DW System Disinfection Byproduct Violation Frequency,Drinking Water MCL
+treat,Enforcement_Violation_Notice_num,0.245385106,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+treat,Mgmt_Deficiences_num,0.190585496,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+treat,n_DBP_mr,0.159200485,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+treat,Treatment_deficiencies_num,0.15122475,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+treat,n_Tot_C_tt,0.135944364,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+treat,Distribution_deficiencies_num,0.10157608,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+treat,n_RTCR_tt,0.08641045,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+treat,AltSource_yn2,0.051160086,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+treat,n_turb_exceed,0.045645815,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+treat,n_SWTR_tt,0.020932613,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+treat,RTCR_Risk,0.012019781,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+treat,n_RTCR_mcl,0.009677979,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+treat,NO3_Viol_Freq,0.005990412,Lake,Number of DW System NO3 Violations,Drinking Water MCL
+treat,Financial_Deficiencies_num,0.003180474,Lake,Number of Financial Deficiences,Drinking Water Operation
+treat,ServesSchoolDaycare2,0.000378699,Lake,If DW System Serves School or Hospital,Drinking Water Operation
+viol,All_Viol_Risk,2.077131139,Lake,All DW System Health-Based Violation Risk (0-1),Drinking Water MCL
+viol,All_Viol_Freq,1.286077362,Lake,All DW System Health-Based Violations Frequency,Drinking Water MCL
+viol,DBP_Viol_Freq,1.252875825,Lake,DW System Disinfection Byproduct Violation Frequency,Drinking Water MCL
+viol,Mgmt_Deficiences_num,0.627222476,Lake,Number of DW System Management Deficiencies,Drinking Water Operation
+viol,n_turb_exceed,0.435710693,Lake,Number of DW System Turbidity Exceedances,Drinking Water Operation
+viol,MeanDepth,0.37980613,Lake,Mean Lake Depth,Lake
+viol,Treatment_deficiencies_num,0.261617464,Lake,Number of DW System Treatment Deficiencies,Drinking Water Operation
+viol,Tmean8110Ws,0.239134204,Lake,30-year (1981-2010) mean temp. (C) in Ws,climate
+viol,Nsurp_kgkm2_Ws,0.216118196,Lake,N Surplus per Ws (kg N/km2/yr),inputs
+viol,lake_TN,0.198724693,Lake,Predicted Lake Total Nitrogen Concentration (mg/L),Lake
+viol,Lake_Chla,0.165453286,Lake,Predicted Lake Chlorophyll-a Concentration (mg/L),Lake
+viol,Precip8110Ws,0.161206123,Lake,30-year mean precip. in Ws (mm),Climate 
+viol,Lake_Risk,0.152287325,Lake,Predicted Overall Lake Risk Score (0-1),Lake
+viol,All_Deficiencies_num,0.144703443,Lake,Total System Deficiencies,Drinking Water Operation
+viol,Distribution_deficiencies_num,0.13534987,Lake,Number of Distribution System Deficiencies,Drinking Water Operation
+viol,SystemSizePop,0.132025423,Lake,Number of People Served,Drinking Water Operation
+viol,LakeVolume,0.127271496,Lake,Lake Volume,Lake
+viol,DW_Ops_Risk,0.124433675,Lake,Overall DW System Operations Risk (0-1),Drinking Water Operation
+viol,lake_TP,0.121003199,Lake,Predicted Lake Total Phosphorus Concentration (mg/L),Lake
+viol,n_Tot_C_tt,0.120231472,Lake,Number of DW System Total Carbon Treatment Technique Violations,Drinking Water Operation
+viol,FertCat,0.119668461,Lake,N fertilizer app. rate in Cat (kg N/ha/yr),inputs
+viol,HABs_Treat_Score2,0.105141059,Lake,Calculated HABs Specific Treatment Tech Score (0-1),Drinking Water Operation
+viol,LakeArea,0.10482083,Lake,Lake Area,Lake
+viol,n_DBP_mr,0.089575801,Lake,Number of DW System Disinfectant Byproduct Monitoring/Reporting Violations,Drinking Water Operation
+viol,n_RTCR_mcl,0.069455274,Lake,Number of DW System Revised Total Coliform Maximum Contaminant Level Violations,Drinking Water Operation
+viol,n_SWTR_tt,0.061899676,Lake,Number of DW System Source Water Treatment Rule Treatment Technique Violations,Drinking Water Operation
+viol,RTCR_Risk,0.060005636,Lake,Revised Total Coliform Risk Score (0-1),Drinking Water MCL
+viol,SourceWater_deficiencies_num,0.043874036,Lake,Number of DW System Source Water Deficiencies,Drinking Water Operation
+viol,Financial_Deficiencies_num,0.032154599,Lake,Number of Financial Deficiences,Drinking Water Operation
+viol,Enforcement_Violation_Notice_num,0.029567157,Lake,Number of DW System Enforcement Violations,Drinking Water Operation
+viol,AltSource_yn2,0.008164829,Lake,If DW System has Alternate Source (Y/N),Drinking Water MCL
+viol,n_RTCR_tt,0.007784132,Lake,Number of DW System Revised Total Coliform Treatment Technique Violations,Drinking Water Operation
+viol,NO3_Viol_Freq,0.004780059,Lake,Number of DW System NO3 Violations,Drinking Water MCL
+viol,ServesSchoolDaycare2,0.000217684,Lake,If DW System Serves School or Hospital,Drinking Water Operation

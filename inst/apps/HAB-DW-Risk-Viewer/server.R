@@ -7,22 +7,1980 @@
 #    https://shiny.posit.co/
 #
 
-library(shiny)
+# Packages ----
+# library(shiny)
 
+# Server ----
 # Define server logic required to draw a histogram
 function(input, output, session) {
 
-    output$distPlot <- renderPlot({
+  ## Plot ----
+  output$distPlot <- renderPlot({
 
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+      # generate bins based on input$bins from ui.R
+      x    <- faithful[, 2]
+      bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
+      # draw the histogram with the specified number of bins
+      hist(x, breaks = bins, col = 'darkgray', border = 'white',
+           xlab = 'Waiting time to next eruption (in mins)',
+           main = 'Histogram of waiting times')
 
-    })
+  })## hist
+  
+  ## Map, Base ----
+  output$map_huc <- renderLeaflet({
 
-}
+    leaflet::leaflet() |>
+      leaflet::addTiles() |>
+      leaflet::addProviderTiles("CartoDB.Positron", group="Positron") |>
+      addProviderTiles(providers$OpenStreetMap, group = "Open Street Map") |>
+      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery") |>
+      # addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") |>
+      # Layers, Control
+      addLayersControl(baseGroups = c("Positron",
+                                      "Open Street Map",
+                                      "ESRI World Imagery")) |>
+      # HUC Layer
+      # leaflet::addPolygons(data = HUC12_simple,
+      #             popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
+      #                             "Name: ", name, as.character("<br>"),
+      #                             "Results: ", input$map_results, as.character("<br>"),
+      #                             "Waterbody: ", input$map_water),
+      #             weight = 1,
+      #             color = "black",
+      #             fillColor = "blue",
+      #             smoothFactor = 5) |>
+      # leaflet::addPolygons(data = HUC12_simple,
+      #                      popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+      #                                      "Name: ", HU_12_NAME, as.character("<br>"),
+      #                                      "Model: ", input$map_results, as.character("<br>"),
+      #                                      "Waterbody: ", input$map_water, as.character("<br>"),
+      #                                      "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+      #                                      "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+      #                                      "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+      #                                      "Results, Lake RF:", round(Lake_RF, 1)
+      #                                      ),
+      #                      weight = 1,
+      #                      color = "darkgray",
+      #                      # fillColor = "skyblue",
+      #                      # fillColor = ~sel_user_pal(),
+      #                      fillColor = colorNumeric(
+      #                        palette = "viridis",
+      #                        domain = HUC12_simple$"River_Risk")(HUC12_simple$"River_Risk"),
+      #                      smoothFactor = 0,
+      #                      highlightOptions = highlightOptions(bringToFront = TRUE,
+      #                                                          color = "darkgreen",
+      #                                                          fillColor = "green",
+      #                                                          weight = 3)) |>
+      
+      # addRasterImage(raster_huc12, opacity = 0.8) |>
+      # Legend
+      # addLegend("bottomleft",
+      #           colors = "green",
+      #           labels = "HUC02",
+      #           values = NA) |>
+      # Layers
+      # Mini map
+      leaflet::addMiniMap(toggleDisplay = TRUE) |>
+      # Bounds
+      fitBounds(bbox_conus[1], bbox_conus[2], bbox_conus[3], bbox_conus[4])
+
+      
+  })## map_huc
+  
+  # User Variable
+  sel_user_var <- reactive({    
+    
+    if(input$map_water == "River") {
+      suv1 <- "River"
+    } else if (input$map_water == "Random Forest") {
+      suv1 <- "Lake"
+    }## IF ~ map_results
+    
+    if(input$map_results == "Risk") {
+      suv2 <- "Risk"
+    } else if (input$map_results == "Random Forest") {
+      suv2 <- "RF"
+    }## IF ~ map_results
+    
+    suv <- paste(suv1, suv2, sep = "_")
+    
+    return(suv)
+    
+  })
+  
+  sel_user_pal <- reactive({
+    colorNumeric(
+      palette = "viridis",
+      domain = HUC12_simple[[sel_user_var]]
+    )
+    
+  })
+  
+  
+  # Map, Update ----
+  # update map based on user selections
+  # tied to Update button
+  # https://rstudio.github.io/leaflet/shiny.html
+  # need a reactive to trigger, use map update button
+  observeEvent(input$but_map_update, {
+    # check user selections
+    
+    # If waterbody = River, pop up with 
+    
+    # create a new map?\
+    
+    mapdatatype <- "centroid_rf" # "polygon_simple", "centroid", "polygon_rf", "centroid_rf"
+
+    ## Map, bbox 
+    sel_map_zoom <- input$map_zoom
+    if (sel_map_zoom == "US") {
+      bbox_zoom <- bbox_conus
+    } else {
+      df_zoom <- df_coord_states |>
+        filter(Postal_Abbreviation == sel_map_zoom)
+      bbox_zoom <- c(df_zoom$Min_Longitude,
+                     df_zoom$Max_Latitude, 
+                     df_zoom$Max_Longitude, 
+                     df_zoom$Min_Latitude)
+    }## IF ~ sel_map_zoom
+  
+    ### Data, User ----
+    sel_map_model <- input$map_model
+    
+    if(sel_map_model == "cyan") {
+      mod_varimp_user <- mod_varimp_cyan
+      rfr_ranger <- rfr_cyan_model 
+    } else if (sel_map_model == "DBP") {
+      mod_varimp_user <- mod_varimp_dbp
+      rfr_ranger <- rfr_DBP_model 
+    } else if (sel_map_model == "DWOps_Risk") {
+      mod_varimp_user <- mod_varimp_dwops
+      rfr_ranger <- rfr_DWOps_Risk_model 
+    } else if (sel_map_model == "HABDW_Risk") {
+      mod_varimp_user <- mod_varimp_habdw
+      rfr_ranger <- rfr_HABDW_Risk_model 
+    } else if (sel_map_model == "lake_Risk") {
+      mod_varimp_user <- mod_varimp_lake
+      rfr_ranger <- rfr_lake_Risk_model 
+    } else if (sel_map_model == "Treat_Risk") {
+      mod_varimp_user <- mod_varimp_treat
+      rfr_ranger <- rfr_Treat_Risk_model 
+    } else if (sel_map_model == "Viol_Risk") {
+      mod_varimp_user <- mod_varimp_viol
+      rfr_ranger <- rfr_Viol_Risk_model 
+    }## IF ~ sel_map_model
+    
+    # Scenario - User Select
+    mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
+    mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
+    mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
+    mod_varimp_user[4, "User_Select"] <- input$map_radio_p04
+    mod_varimp_user[5, "User_Select"] <- input$map_radio_p05
+    mod_varimp_user[6, "User_Select"] <- input$map_radio_p06
+    mod_varimp_user[7, "User_Select"] <- input$map_radio_p07
+    mod_varimp_user[8, "User_Select"] <- input$map_radio_p08
+    mod_varimp_user[9, "User_Select"] <- input$map_radio_p09
+    mod_varimp_user[10, "User_Select"] <- input$map_radio_p10
+    mod_varimp_user[11, "User_Select"] <- input$map_radio_p11
+    mod_varimp_user[12, "User_Select"] <- input$map_radio_p12
+    mod_varimp_user[13, "User_Select"] <- input$map_radio_p13
+    mod_varimp_user[14, "User_Select"] <- input$map_radio_p14
+    mod_varimp_user[15, "User_Select"] <- input$map_radio_p15
+    mod_varimp_user[16, "User_Select"] <- input$map_radio_p16
+    mod_varimp_user[17, "User_Select"] <- input$map_radio_p17
+    mod_varimp_user[18, "User_Select"] <- input$map_radio_p18
+    mod_varimp_user[19, "User_Select"] <- input$map_radio_p19
+    mod_varimp_user[20, "User_Select"] <- input$map_radio_p20
+    
+    # TEMP - create model input file
+    # variable == mod_varimp_user[1, "Variable"]
+    # user_select == mod_varimp_user[1, "User_Select"]
+    # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
+    # update values based on user selections
+    mod_scen_user <- mod_scen_mean # default
+    #
+    # 01
+    var_num <- 1
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 02
+    var_num <- 2
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 03
+    var_num <- 3
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 04
+    var_num <- 4
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 05
+    var_num <- 5
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 06
+    var_num <- 6
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 07
+    var_num <- 7
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 08
+    var_num <- 8
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 09
+    var_num <- 9
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 10
+    var_num <- 10
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 11
+    var_num <- 11
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 12
+    var_num <- 12
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 13
+    var_num <- 13
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 14
+    var_num <- 14
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 15
+    var_num <- 15
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 16
+    var_num <- 16
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 17
+    var_num <- 17
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 18
+    var_num <- 18
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 19
+    var_num <- 19
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 20
+    var_num <- 20
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    
+    # save
+    # ok to resave file
+    write.csv(mod_varimp_user, 
+              file.path("results", "model_variable_importance.csv"),
+              row.names = FALSE)
+    write.csv(mod_scen_user, 
+              file.path("results", "model_scenario_user_values.csv"),
+              row.names = FALSE)
+ # browser()
+    ## Model Predict ----
+    # model == rfr_ranger (based on user selection)
+    # prediction data == mean data with user mods for top 20
+    mod_pred_data <- mod_scen_user
+    # remove NA
+    mod_pred_data_naomit <- na.omit(mod_pred_data)
+    # drop HUC12
+    mod_pred_data_naomit_rm_huc12 <- mod_pred_data_naomit
+    mod_pred_data_naomit_rm_huc12[, "HUC12"] <- NULL
+    # run model
+    pred_user <- as.data.frame(predict(rfr_ranger,
+                                       data = mod_pred_data_naomit_rm_huc12))
+    # Add HUC12
+    pred_user_results <- cbind(HUC12 = mod_pred_data_naomit[, "HUC12"],
+                               pred_user)
+    
+    ## Save ----
+    write.csv(pred_user_results,
+              file.path("results", "predictions_user.csv"),
+              row.names = FALSE)
+    
+    # MERGE results with HUC12 geo
+        
+    ## update leaflet ----
+    if(mapdatatype == "centroid") {
+      leafletProxy("map_huc", data = HUC12_centroid) |>
+        # add spinner
+        # addSpinner() |>
+        # clean up map before adding to it
+        clearControls() |>
+        clearShapes() |>
+        clearMarkers() |>
+        # Add HUC
+        leaflet::addCircleMarkers(lng = ~Longitude,
+                                  lat = ~Latitude,
+                                  color = "darkgray",
+                                  fillColor = colorNumeric(
+                                    palette = "viridis",
+                                    domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
+                                  group = "HUC12",
+                                  popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                                  "Name: ", HU_12_NAME, as.character("<br>"),
+                                                  "Model: ", input$map_results, as.character("<br>"),
+                                                  "Waterbody: ", input$map_water, as.character("<br>"),
+                                                  "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                                  "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                                  "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                                  "Results, Lake RF:", round(Lake_RF, 1)
+                                  )) |>
+        # Layers, Control
+        addLayersControl(baseGroups = c("Positron",
+                                        "Open Street Map",
+                                        "ESRI World Imagery"),
+                         overlayGroups = "HUC12") |>
+      # Bounds
+      fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+      # Spinner, Stop
+      # stopSpinner()
+      # Layers, Hide
+      #hideGroup("HUC12") # if hide by default not sure when loaded
+      # Zoom in 
+      # setView(zoom = 7) # needs lat long
+      
+      
+    } else if (mapdatatype == "centroid_rf") {
+      leafletProxy("map_huc", data = HUC12_centroid_rf) |>
+        # add spinner
+        # addSpinner() |>
+        # clean up map before adding to it
+        clearControls() |>
+        clearShapes() |>
+        clearMarkers() |>
+        # Add HUC
+        leaflet::addCircleMarkers(lng = ~Longitude,
+                                  lat = ~Latitude,
+                                  color = "darkgray",
+                                  fillColor = colorNumeric(
+                                    palette = "viridis",
+                                    domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
+                                  group = "HUC12",
+                                  popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                                  "Name: ", HU_12_NAME, as.character("<br>"),
+                                                  "Model: ", input$map_results, as.character("<br>"),
+                                                  "Waterbody: ", input$map_water, as.character("<br>"),
+                                                  "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                                  "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                                  "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                                  "Results, Lake RF:", round(Lake_RF, 1)
+                                  )) |>
+        # Layers, Control
+        addLayersControl(baseGroups = c("Positron",
+                                        "Open Street Map",
+                                        "ESRI World Imagery"),
+                         overlayGroups = "HUC12") |>
+        # Bounds
+        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+      # Spinner, Stop
+      # stopSpinner()
+      # Layers, Hide
+      #hideGroup("HUC12") # if hide by default not sure when loaded
+      # Zoom in 
+      # setView(zoom = 7) # needs lat long
+      
+      
+    } else if (mapdatatype == "polygon_simple") {
+      leafletProxy("map_huc", data = HUC12_simple) |>
+        # add spinner
+        # addSpinner() |>
+        # clean up map before adding to it
+        clearControls() |>
+        clearShapes() |>
+        clearMarkers() |>
+        # Add HUC
+        leaflet::addPolygons(data = HUC12_simple,
+                             group = "HUC12",
+                             popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                             "Name: ", HU_12_NAME, as.character("<br>"),
+                                             "Model: ", input$map_results, as.character("<br>"),
+                                             "Waterbody: ", input$map_water, as.character("<br>"),
+                                             "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                             "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                             "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                             "Results, Lake RF:", round(Lake_RF, 1)
+                                             ),
+                             weight = 1,
+                             color = "darkgray",
+                             # fillColor = "skyblue",
+                             # fillColor = ~sel_user_pal(),
+                             fillColor = colorNumeric(
+                               palette = "viridis",
+                               domain = HUC12_simple$"River_Risk")(HUC12_simple$"River_Risk"),
+                             smoothFactor = 0,
+                             highlightOptions = highlightOptions(bringToFront = TRUE,
+                                                                 color = "darkgreen",
+                                                                 fillColor = "green",
+                                                                 weight = 3)) |>
+        # Layers, Control
+        addLayersControl(baseGroups = c("Positron",
+                                        "Open Street Map",
+                                        "ESRI World Imagery"),
+                         overlayGroups = "HUC12") |>
+        # Bounds
+        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+      # Spinner, Stop
+      # stopSpinner()
+      # Layers, Hide
+      #hideGroup("HUC12") # if hide by default not sure when loaded
+      # Zoom in 
+      # setView(zoom = 7) # needs lat long
+      
+    } else if (mapdatatype == "polygon_rf") {
+      leafletProxy("map_huc", data = HUC12_rf) |>
+        # add spinner
+        # addSpinner() |>
+        # clean up map before adding to it
+        clearControls() |>
+        clearShapes() |>
+        clearMarkers() |>
+        # Add HUC
+        leaflet::addPolygons(data = HUC12_simple,
+                             group = "HUC12",
+                             popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
+                                             "Name: ", name, as.character("<br>"),
+                                             "Scenario: ", input$map_water_model, as.character("<br>"),
+                                             # "Model: ", input$map_results, as.character("<br>"),
+                                             # "Waterbody: ", input$map_water, as.character("<br>"),
+                                             # "Endpoint: ", input$map_endpoint, as.character("<br>"),
+                                             "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                             "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                             "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                             "Results, Lake RF:", round(Lake_RF, 1)
+                             ),
+                             weight = 1,
+                             color = "darkgray",
+                             # fillColor = "skyblue",
+                             # fillColor = ~sel_user_pal(),
+                             fillColor = colorNumeric(
+                               palette = "viridis",
+                               domain = HUC12_rf$"River_Risk")(HUC12_rf$"River_Risk"),
+                             smoothFactor = 0,
+                             highlightOptions = highlightOptions(bringToFront = TRUE,
+                                                                 color = "darkgreen",
+                                                                 fillColor = "green",
+                                                                 weight = 3)) |>
+        # Layers, Control
+        addLayersControl(baseGroups = c("Positron",
+                                        "Open Street Map",
+                                        "ESRI World Imagery"),
+                         overlayGroups = "HUC12") |>
+        # Bounds
+        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+      # Spinner, Stop
+      # stopSpinner()
+      # Layers, Hide
+      #hideGroup("HUC12") # if hide by default not sure when loaded
+      # Zoom in 
+      # setView(zoom = 7) # needs lat long
+      
+    }
+    
+    ## change view ----
+    # updateTabItems(session, "tabs", "Map Selections")
+    updateTabsetPanel(session, "inSelections", "Map")
+    
+  })## observer ~ but_map_update
+  
+  ## Summary Stats, State ----
+  
+  
+  # plot_sum_cdf <- eventReactive(input$but_map_range, {
+  output$plot_summ_cdf <- renderPlot({
+    
+    sel_map_zoom <- input$map_zoom
+    
+    # may not use if/then in final, use user selection on variables for model
+    sel_map_model <- input$map_model
+    sel_map_water <- input$map_water
+
+    
+    # mod_test |>
+    #   ggplot2::ggplot(ggplot2::aes())
+    
+    
+    
+  })## plot_summ_cdf
+  
+  # box
+  # box single variable
+  # table
+  
+  
+  
+  
+  ## Model Performance ----
+  
+  ### Mod Perf, Plot ----
+  output$plot_model_perf <- renderPlot({
+    
+    # may not use if/then in final, use user selection on variables for model
+    sel_map_model <- input$map_model
+    sel_map_water <- input$map_water
+    
+    if(sel_map_model == "cyan") {
+      rfr_ranger <- rfr_cyan_model 
+      tester1 <- rfr_test_cyan
+    } else if (sel_map_model == "DBP") {
+      rfr_ranger <- rfr_DBP_model 
+      tester1 <- rfr_test_dbp
+    } else if (sel_map_model == "DWOps_Risk") {
+      rfr_ranger <- rfr_DWOps_Risk_model 
+      tester1 <- rfr_test_dwops
+    } else if (sel_map_model == "HABDW_Risk") {
+      rfr_ranger <- rfr_HABDW_Risk_model 
+      tester1 <- rfr_test_habdw
+    } else if (sel_map_model == "lake_Risk") {
+      rfr_ranger <- rfr_lake_Risk_model 
+      tester1 <- rfr_test_lake
+    } else if (sel_map_model == "Treat_Risk") {
+      rfr_ranger <- rfr_Treat_Risk_model 
+      tester1 <- rfr_test_treat
+    } else if (sel_map_model == "Viol_Risk") {
+      rfr_ranger <- rfr_Viol_Risk_model 
+      tester1 <- rfr_test_viol
+    }## IF ~ sel_map_model
+    
+    # R2 Testing Set
+    yobs_tester <- as.numeric(unlist(tester1[,'Result_Risk']))
+    ypred_tester <- predict(rfr_ranger, data = tester1)
+    # r2_tester <- r2(yobs_tester, as.numeric(ypred_tester$predictions))
+    
+    tempDF <- data.frame(yobs = yobs_tester, ypred = ypred_tester$predictions)
+    
+    p_mod_summ <- tempDF |>
+      ggplot2::ggplot(ggplot2::aes(yobs, ypred)) +
+      ggplot2::geom_point(size = 1, color = 'blue') +
+      ggplot2::geom_smooth(method = 'lm' , color = 'grey') +
+      ggplot2::geom_abline(slope = 1, intercept = 0, color = "red") +
+      ggplot2::scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      ggplot2::labs(title = "Random Forest Observed vs Predicted",
+                    x = "Observed ",
+                    y = "Predicted ",
+                    caption = sel_map_model) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(text = ggplot2::element_text(size = 15,
+                                                  face = "bold",
+                                                  color = "blue"),
+                     plot.title = ggplot2::element_text(hjust = 0.5, 
+                                                        size = 15))
+    # save
+    fn_plot <- file.path("results", "plot_model_summary.png")
+    ggplot2::ggsave(fn_plot,
+                    height = plot_height,
+                    width = plot_width,
+                    units = plot_units,
+                    bg = plot_bg)
+    
+    # output
+    p_mod_summ
+    
+  })## plot_modperf
+  
+  
+  ### Mod Perf, Table ----
+  output$table_model_perf <- renderTable({
+    
+    sel_map_model <- input$map_model
+    
+    if(sel_map_model == "cyan") {
+      rfr_ranger <- rfr_cyan_model 
+      tester1 <- rfr_test_cyan
+    } else if (sel_map_model == "DBP") {
+      rfr_ranger <- rfr_DBP_model 
+      tester1 <- rfr_test_dbp
+    } else if (sel_map_model == "DWOps_Risk") {
+      rfr_ranger <- rfr_DWOps_Risk_model 
+      tester1 <- rfr_test_dwops
+    } else if (sel_map_model == "HABDW_Risk") {
+      rfr_ranger <- rfr_HABDW_Risk_model 
+      tester1 <- rfr_test_habdw
+    } else if (sel_map_model == "lake_Risk") {
+      rfr_ranger <- rfr_lake_Risk_model 
+      tester1 <- rfr_test_lake
+    } else if (sel_map_model == "Treat_Risk") {
+      rfr_ranger <- rfr_Treat_Risk_model 
+      tester1 <- rfr_test_treat
+    } else if (sel_map_model == "Viol_Risk") {
+      rfr_ranger <- rfr_Viol_Risk_model 
+      tester1 <- rfr_test_viol
+    }## IF ~ sel_map_model
+    
+    r2_report    <- rfr_ranger$r.squared
+    error_report <- rfr_ranger$prediction.error 
+    
+    # function to calculate r-squared
+    r2 <- function(y,pred){
+      1 - var(y - pred) / var(y)
+    }
+    
+    # R2 Testing Set
+    yobs_tester <- as.numeric(unlist(tester1[,'Result_Risk']))
+    ypred_tester <- predict(rfr_ranger, data = tester1)
+    r2_tester <- r2(yobs_tester, as.numeric(ypred_tester$predictions))
+    
+    #Root Mean Squared Error (RMSE)
+    rmse <- sqrt(mean((ypred_tester$predictions-yobs_tester)^2))
+    
+    # Mean Bias
+    bias <- (sum(ypred_tester$predictions) - sum(yobs_tester)) / length(yobs_tester) 
+    
+    #standard deviation of the error
+    SD <- sd(ypred_tester$predictions - yobs_tester)
+    
+    # Nash-Sutcliffe efficiency coefficient 
+    nse2 <- ie2misc::vnse(ypred_tester$predictions, yobs_tester, na.rm = TRUE) 
+    
+    table_col_1 <- c("r.squared (reported by Ranger function)",
+                     "prediction.error (reported by Ranger function)",
+                     "R squared (testing set)",
+                     "Root Mean Squared Error",
+                     "Mean Bias",
+                     "Standard deviation of the error",
+                     "Nash-Sutcliffe efficiency coefficient")
+    
+    table_col_2 <- c(r2_report, error_report, r2_tester, rmse,bias, SD, nse2)
+    table_col_2 <- formatC(table_col_2, digits = 4, format = "f")
+    
+    table_to_print <- data.frame(cbind(table_col_1, table_col_2))
+    colnames(table_to_print) <- c("Model Uncertainty Metrics","Values")
+    
+    # save
+    write.csv(table_to_print, 
+              file.path("results", "model_summary_metrics.csv"),
+              row.names = FALSE)
+    
+    # output
+    table_to_print
+  }, 
+  type = "html",
+  bordered = TRUE,
+  striped = TRUE,
+  align = "c"
+  )
+  
+  # observe({
+  #   # user selection
+  #   user_water <- input$map_water
+  #   user_results <- input$map_results
+  #   
+  #   # update map
+  #   leaflet::leafletProxy("map") |>
+  #     leaflet::clearShapes() |>
+  #     leaflet::addPolygons(data = HUC12_simple,
+  #                          # color = "black",
+  #                          fill = "blue",
+  #                          popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
+  #                                          "Name: ", name, as.character("<br>"),
+  #                                          "Results: ", user_results, as.character("<br>"),
+  #                                          "Waterbody: ", user_water))
+  #   
+  #   
+  #   
+  #   
+  # })## observe ~ water
+  
+  # Model, Var Imp ----
+  # output$plot_model_rfr_Lake_Risk <- renderPlot({
+  #   vip::vip(rfr_lake_Risk_model) + 
+  #     ggplot2::theme_bw() + 
+  #     ggplot2::labs(title = "rfr_lake_Risk_model")
+  #   # plotly::ggplotly(p)
+  # })
+  
+  ### Model, Var Imp, Plot ----
+  output$plot_model_varimp <- renderPlot({
+    sel_map_model <- input$map_model
+    sel_map_water <- input$map_water
+    if(sel_map_model == "cyan") {
+      mod_name <- mod_varimp_cyan
+    } else if (sel_map_model == "DBP") {
+      mod_name <- mod_varimp_dbp
+    } else if (sel_map_model == "DWOps_Risk") {
+      mod_name <- mod_varimp_dwops
+    } else if (sel_map_model == "HABDW_Risk") {
+      mod_name <- mod_varimp_habdw
+    } else if (sel_map_model == "lake_Risk") {
+      mod_name <- mod_varimp_lake
+    } else if (sel_map_model == "Treat_Risk") {
+      mod_name <- mod_varimp_treat
+    } else if (sel_map_model == "Viol_Risk") {
+      mod_name <- mod_varimp_viol
+    }## IF ~ sel_map_model
+    #
+    # Top N Variable Importance and Plot
+    p_varimp <- mod_name |>
+      dplyr::slice(1:imp_n) |>
+      ggplot2::ggplot(ggplot2::aes(x = reorder(Variable, Importance),
+                                   y = Importance)) +
+        ggplot2::geom_bar(stat = "identity") + 
+        ggplot2::coord_flip() +
+        ggplot2::theme_bw(base_size = 18) +
+        ggplot2::labs(x = "Model Variables",
+                      title = sel_map_model,
+                      subtitle = paste0("Top ", imp_n, " Variables"),
+                      caption = paste0("Waterbody: ", sel_map_water))
+    
+    # save
+    fn_plot <- file.path("results", "plot_variable_importance.png")
+    ggplot2::ggsave(fn_plot,
+                    height = plot_height,
+                    width = plot_width,
+                    units = plot_units,
+                    bg = plot_bg)
+    
+    # output
+    p_varimp
+  })## renderPlot
+  
+  ### Model, Var Imp, Table ----
+  output$table_model_varimp <- renderTable({
+    sel_map_model <- input$map_model
+    if(sel_map_model == "cyan") {
+      mod_varimp_user <- mod_varimp_cyan
+    } else if (sel_map_model == "DBP") {
+      mod_varimp_user <- mod_varimp_dbp
+    } else if (sel_map_model == "DWOps_Risk") {
+      mod_varimp_user <- mod_varimp_dwops
+    } else if (sel_map_model == "HABDW_Risk") {
+      mod_varimp_user <- mod_varimp_habdw
+    } else if (sel_map_model == "lake_Risk") {
+      mod_varimp_user <- mod_varimp_lake
+    } else if (sel_map_model == "Treat_Risk") {
+      mod_varimp_user <- mod_varimp_treat
+    } else if (sel_map_model == "Viol_Risk") {
+      mod_varimp_user <- mod_varimp_viol
+    }## IF ~ sel_map_model
+    
+    # Scenario - User Select
+    mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
+    mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
+    mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
+    mod_varimp_user[4, "User_Select"] <- input$map_radio_p04
+    mod_varimp_user[5, "User_Select"] <- input$map_radio_p05
+    mod_varimp_user[6, "User_Select"] <- input$map_radio_p06
+    mod_varimp_user[7, "User_Select"] <- input$map_radio_p07
+    mod_varimp_user[8, "User_Select"] <- input$map_radio_p08
+    mod_varimp_user[9, "User_Select"] <- input$map_radio_p09
+    mod_varimp_user[10, "User_Select"] <- input$map_radio_p10
+    mod_varimp_user[11, "User_Select"] <- input$map_radio_p11
+    mod_varimp_user[12, "User_Select"] <- input$map_radio_p12
+    mod_varimp_user[13, "User_Select"] <- input$map_radio_p13
+    mod_varimp_user[14, "User_Select"] <- input$map_radio_p14
+    mod_varimp_user[15, "User_Select"] <- input$map_radio_p15
+    mod_varimp_user[16, "User_Select"] <- input$map_radio_p16
+    mod_varimp_user[17, "User_Select"] <- input$map_radio_p17
+    mod_varimp_user[18, "User_Select"] <- input$map_radio_p18
+    mod_varimp_user[19, "User_Select"] <- input$map_radio_p19
+    mod_varimp_user[20, "User_Select"] <- input$map_radio_p20
+    
+    # TEMP - create model input file
+    # variable == mod_varimp_user[1, "Variable"]
+    # user_select == mod_varimp_user[1, "User_Select"]
+    # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
+    # update values based on user selections
+    mod_scen_user <- mod_scen_mean # default
+    #
+    # 01
+    var_num <- 1
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 02
+    var_num <- 2
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 03
+    var_num <- 3
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 04
+    var_num <- 4
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 05
+    var_num <- 5
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 06
+    var_num <- 6
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 07
+    var_num <- 7
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 08
+    var_num <- 8
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 09
+    var_num <- 9
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 10
+    var_num <- 10
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 11
+    var_num <- 11
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 12
+    var_num <- 12
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 13
+    var_num <- 13
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 14
+    var_num <- 14
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 15
+    var_num <- 15
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 16
+    var_num <- 16
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 17
+    var_num <- 17
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 18
+    var_num <- 18
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 19
+    var_num <- 19
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    # 20
+    var_num <- 20
+    update_variable    <- mod_varimp_user[var_num, "Variable"]
+    update_user_select <- mod_varimp_user[var_num, "User_Select"]
+    mod_scen_user[, update_variable] <- 
+      mod_scen_list[[update_user_select]][, update_variable]
+    
+    # save
+    write.csv(mod_varimp_user, 
+              file.path("results", "model_variable_importance.csv"),
+              row.names = FALSE)
+    write.csv(mod_scen_user, 
+              file.path("results", "model_scenario_user_values.csv"),
+              row.names = FALSE)
+    
+    # output
+    mod_varimp_user
+  })
+  
+ 
+  # Misc ----
+  output$str_water <- renderText({
+    paste0("Waterbody: ", input$map_water)
+  })
+  
+  output$str_model <- renderText({
+    paste0("Model: ", input$map_model)
+  })
+  
+
+  # Radio  ----
+  observeEvent(input$map_model, {
+    sel_map_model <- input$map_model
+    rnd_imp <- 3
+
+  if (sel_map_model == "cyan") {
+    ### Lab, cyan ----  
+    mod_radio <- mod_varimp_cyan
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if (sel_map_model == "DBP") {
+    ### Lab, dbp ----
+    mod_radio <- mod_varimp_dbp
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if (sel_map_model == "DWOps_Risk") {
+    ### Lab, dwops ----
+    mod_radio <- mod_varimp_dwops
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if (sel_map_model == "HABDW_Risk") {
+    ### Lab, habdw ----
+    mod_radio <- mod_varimp_habdw
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if(sel_map_model == "lake_Risk") {
+    ### Lab, lake ----
+    mod_radio <- mod_varimp_lake
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if (sel_map_model == "Treat_Risk") {
+    ### Lab, treat ----
+    mod_radio <- mod_varimp_treat
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else if (sel_map_model == "Viol_Risk") {
+    ### Lab, viol ----
+    mod_radio <- mod_varimp_viol
+    lab_radio_01 <- paste0(mod_radio[1, 1],
+                           " (Importance = ", 
+                           round(mod_radio[1, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[1, 4],
+                           "]")
+    lab_radio_02 <- paste0(mod_radio[2, 1],
+                           " (Importance = ", 
+                           round(mod_radio[2, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[2, 4],
+                           "]")
+    lab_radio_03 <- paste0(mod_radio[3, 1],
+                           " (Importance = ", 
+                           round(mod_radio[3, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[3, 4],
+                           "]")
+    lab_radio_04 <- paste0(mod_radio[4, 1],
+                           " (Importance = ", 
+                           round(mod_radio[4, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[4, 4],
+                           "]")
+    lab_radio_05 <- paste0(mod_radio[5, 1],
+                           " (Importance = ", 
+                           round(mod_radio[5, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[5, 4],
+                           "]")
+    lab_radio_06 <- paste0(mod_radio[6, 1],
+                           " (Importance = ", 
+                           round(mod_radio[6, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[6, 4],
+                           "]")
+    lab_radio_07 <- paste0(mod_radio[7, 1],
+                           " (Importance = ", 
+                           round(mod_radio[7, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[7, 4],
+                           "]")
+    lab_radio_08 <- paste0(mod_radio[8, 1],
+                           " (Importance = ", 
+                           round(mod_radio[8, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[8, 4],
+                           "]")
+    lab_radio_09 <- paste0(mod_radio[9, 1],
+                           " (Importance = ", 
+                           round(mod_radio[9, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[9, 4],
+                           "]")
+    lab_radio_10 <- paste0(mod_radio[10, 1],
+                           " (Importance = ", 
+                           round(mod_radio[10, 2], rnd_imp),
+                           ")")
+    lab_radio_11 <- paste0(mod_radio[11, 1],
+                           " (Importance = ", 
+                           round(mod_radio[11, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[11, 4],
+                           "]")
+    lab_radio_12 <- paste0(mod_radio[12, 1],
+                           " (Importance = ", 
+                           round(mod_radio[12, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[12, 4],
+                           "]")
+    lab_radio_13 <- paste0(mod_radio[13, 1],
+                           " (Importance = ", 
+                           round(mod_radio[13, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[13, 4],
+                           "]")
+    lab_radio_14 <- paste0(mod_radio[14, 1],
+                           " (Importance = ", 
+                           round(mod_radio[14, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[14, 4],
+                           "]")
+    lab_radio_15 <- paste0(mod_radio[15, 1],
+                           " (Importance = ", 
+                           round(mod_radio[15, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[15, 4],
+                           "]")
+    lab_radio_16 <- paste0(mod_radio[16, 1],
+                           " (Importance = ", 
+                           round(mod_radio[16, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[16, 4],
+                           "]")
+    lab_radio_17 <- paste0(mod_radio[17, 1],
+                           " (Importance = ", 
+                           round(mod_radio[17, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[17, 4],
+                           "]")
+    lab_radio_18 <- paste0(mod_radio[18, 1],
+                           " (Importance = ", 
+                           round(mod_radio[18, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[18, 4],
+                           "]")
+    lab_radio_19 <- paste0(mod_radio[19, 1],
+                           " (Importance = ", 
+                           round(mod_radio[19, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[19, 4],
+                           "]")
+    lab_radio_20 <- paste0(mod_radio[20, 1],
+                           " (Importance = ", 
+                           round(mod_radio[20, 2], rnd_imp),
+                           ") [Type = ",
+                           mod_radio[20, 4],
+                           "]")
+  } else {
+    lab_radio_01 <- "p01"
+    lab_radio_02 <- "p02"
+    lab_radio_03 <- "p03"
+    lab_radio_04 <- "p04"
+    lab_radio_05 <- "p05"
+    lab_radio_06 <- "p06"
+    lab_radio_07 <- "p07"
+    lab_radio_08 <- "p08"
+    lab_radio_09 <- "p09"
+    lab_radio_10 <- "p10"
+    lab_radio_11 <- "p11"
+    lab_radio_12 <- "p12"
+    lab_radio_13 <- "p13"
+    lab_radio_14 <- "p14"
+    lab_radio_15 <- "p15"
+    lab_radio_16 <- "p16"
+    lab_radio_17 <- "p17"
+    lab_radio_18 <- "p18"
+    lab_radio_19 <- "p19"
+    lab_radio_20 <- "p20"
+  }## IF ~ sel_map_water
+    
+    updateRadioButtons(session,
+                       "map_radio_p01",
+                       label = lab_radio_01)
+    updateRadioButtons(session,
+                       "map_radio_p02",
+                       label = lab_radio_02)
+    updateRadioButtons(session,
+                       "map_radio_p03",
+                       label = lab_radio_03)
+    updateRadioButtons(session,
+                       "map_radio_p04",
+                       label = lab_radio_04)
+    updateRadioButtons(session,
+                       "map_radio_p05",
+                       label = lab_radio_05)
+    updateRadioButtons(session,
+                       "map_radio_p06",
+                       label = lab_radio_06)
+    updateRadioButtons(session,
+                       "map_radio_p07",
+                       label = lab_radio_07)
+    updateRadioButtons(session,
+                       "map_radio_p08",
+                       label = lab_radio_08)
+    updateRadioButtons(session,
+                       "map_radio_p09",
+                       label = lab_radio_09)
+    updateRadioButtons(session,
+                       "map_radio_p10",
+                       label = lab_radio_10)
+    updateRadioButtons(session,
+                       "map_radio_p11",
+                       label = lab_radio_11)
+    updateRadioButtons(session,
+                       "map_radio_p12",
+                       label = lab_radio_12)
+    updateRadioButtons(session,
+                       "map_radio_p13",
+                       label = lab_radio_13)
+    updateRadioButtons(session,
+                       "map_radio_p14",
+                       label = lab_radio_14)
+    updateRadioButtons(session,
+                       "map_radio_p15",
+                       label = lab_radio_15)
+    updateRadioButtons(session,
+                       "map_radio_p16",
+                       label = lab_radio_16)
+    updateRadioButtons(session,
+                       "map_radio_p17",
+                       label = lab_radio_17)
+    updateRadioButtons(session,
+                       "map_radio_p18",
+                       label = lab_radio_18)
+    updateRadioButtons(session,
+                       "map_radio_p19",
+                       label = lab_radio_19)
+    updateRadioButtons(session,
+                       "map_radio_p20",
+                       label = lab_radio_20)
+  })
+    
+  observeEvent(input$but_p_change_all, {
+    # Change all parameter radio buttons
+    updateRadioButtons(session,
+                       "map_radio_p01",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p02",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p03",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p04",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p05",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p06",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p07",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p08",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p09",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p10",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p11",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p12",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p13",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p14",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p15",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p16",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p17",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p18",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p19",
+                       selected = input$p_val_all)
+    updateRadioButtons(session,
+                       "map_radio_p20",
+                       selected = input$p_val_all)
+  })## but_p_change_all
+  
+
+}## server logic
