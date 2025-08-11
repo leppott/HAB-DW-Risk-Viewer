@@ -9,7 +9,7 @@
 function(id) {
   dashboardSidebar(
     width = 275
-    , HTML("&nbsp;&nbsp;<font size=5><b>Steps</b></font>")
+    # , HTML("&nbsp;&nbsp;<font size=5><b>Steps</b></font>")
     #Steps, do *not* need to be done sequentially----
     , sidebarMenu(id = id
                   , menuItem(text = "About"

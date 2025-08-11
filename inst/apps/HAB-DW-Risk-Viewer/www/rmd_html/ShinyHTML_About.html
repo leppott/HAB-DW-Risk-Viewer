@@ -1,6 +1,95 @@
 
 
 
-<p>Data Viewer Map for Drinking Water and Harmful Algal Blooms</p>
+<p>Navigate to the ‘Map’ tab to get started.</p>
+<div id="harmful-algal-bloom-hab-drinking-water-dw-risk-viewer" class="section level1">
+<h1>Harmful Algal Bloom (HAB) Drinking Water (DW) Risk Viewer</h1>
+<div id="overview" class="section level2">
+<h2>Overview:</h2>
+<p>Harmful algal blooms (HABs) in source waters increase the treatment
+needs of drinking water (DW) systems by introducing cyanotoxins and
+heightened levels of organic matter. These cyanotoxins and the
+disinfection by-products (DBPs) which may result from the treatment of
+organic matter are detrimental to human health and may be distributed to
+the public through the water supply. With this application, users can
+interact with several models that investigate the impact of HABs on
+public drinking water. Users can map various risk scores and view the
+main factors which contribute to HABs-DW risk. Users can also how
+alternating different factors related to HABs and drinking water
+operation can raise or lower the risk to public drinking water.</p>
+</div>
+<div id="risk-calculations" class="section level2">
+<h2>Risk Calculations:</h2>
+<p>This application calculates seven different metrics of risk to
+drinking water systems:</p>
+<ol style="list-style-type: decimal">
+<li><p>HABs-DW Risk: Overall risk metric for a drinking water system to
+impact the health of humans due to HABs. It is calculated based on three
+factors: Hazard, Vulnerability, and Exposure.</p></li>
+<li><p>Hazard: refers to the risk of HAB production in a source water.
+Made up of environmental variables that contribute to HABs: temperature,
+cyanobacteria, chlorophyll-a, and nutrient inputs from point and
+non-point sources.</p></li>
+<li><p>Vulnerability: refers to the risk that drinking water treatment
+will not sufficiently remove the contaminants introduced by HABs. Made
+up of drinking water system operational characteristics: treatment
+technologies present, available alternative sources, history of
+deficiencies*, administrative issues, compliance or enforcement
+occurrences, treatment technique violations**.</p></li>
+<li><p>Exposure: refers to the risk that compromised drinking water will
+reach and affect many people and is made up of information about the
+population impacted: population served by the drinking water
+distribution system, system type, and if the system serves a school or
+hospital.</p></li>
+<li><p>Cyan Risk: risk that a drinking water system will have elevated
+cyanotoxins</p></li>
+<li><p>DBP Risk: risk that a drinking water system will have
+health-based violation of the disinfection byproduct standard.</p></li>
+<li><p>Treat Risk: risk that a drinking water system does not have
+sufficient / appropriate treatment technologies to address algal toxins
+in source waters.</p></li>
+</ol>
+<p>To calculate total HAB-DW risk, each factor is normalized to a score
+between 0 and 1 and the overall risk is based on a weighted sum across
+all factors.</p>
+<p>A machine learning model (random forest) is then used to apply the
+observed risk to predict the risk across all lakes.</p>
+<p>*Deficiency: if a system was cited during sanitary survey for having
+deficiencies in its source (improperly constructed, nearby
+contamination), treatment, distribution system, maintenance, or
+incorrect compliance and monitoring of treatment process.</p>
+<p>**Treatment technique violations: A violation of a required process
+intended to reduce the level of a contaminant in drinking water.
+(Precursor Removal, Uncovered Reservoir, Surface Water Treatment Rule,
+Groundwater Treatment Rule, Single Turbidity Exceed, Failure to
+Filter).</p>
+</div>
+<div id="interactive-features" class="section level2">
+<h2>Interactive Features:</h2>
+<p>This application provides an interactive zoomable map summarizing
+locations at the HUC12 scale where public drinking water systems are at
+risk due to impacts of harmful algal blooms (HABs) in source waters. It
+also provides a table of the main factors contributing to this risk.</p>
+<p>This application allows users to choose whether they would like to
+make inferences for lake or river drinking water intakes and which risk
+metric they would like to model. Users can also test how increasing or
+decreasing any of the top twenty most important variables in their
+chosen model will change the risk levels for drinking water supplies and
+see what factors may be best to adjust when trying to mitigate drinking
+water system risk.</p>
+<p>Once users have made their selections and hit the Update Map button,
+they can explore a zoomable map which summarizes HAB-DW risk metrics at
+the 12-digit hydrologic unit code (HUC12) scale, a ranked table of the
+main factors contributing to this risk, and the performance of the model
+they selected.</p>
+<p>This work contributes to the scientific understanding of factors
+(e.g., system operation, or lake morphology and chemistry, climate,
+watershed characteristics, land use, nutrient inputs, and antecedent
+conditions) that contribute to public drinking water system risk due to
+HABs. This is an important tool for those who wish to develop mitigation
+strategies for dealing with the increasing threat of HABs to freshwater
+resources.</p>
 <hr />
-<p><em>Last updated 2024-07-03</em></p>
+<p><em>Last updated 2025-08-05</em></p>
+</div>
+</div>

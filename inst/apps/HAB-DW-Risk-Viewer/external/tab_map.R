@@ -43,20 +43,42 @@ function() {
                            p(paste0("After making changes below click the button here to update the map. ",
                                     "Adding the HUC12 layers takes about 1 minute.")),
                            bsButton("but_map_update", "Update Map"),
+                           shinyBS::bsTooltip(id = "but_map_update",
+                                              title = paste0("Clicking this button will",
+                                                             " generate a map with the user",
+                                                             " selections on this page."),
+                                              placement = "right"),
                            # hr(),
-                           h3("1. Scale at which to view map and summarize data"),
-                           p("Selecting a state zooms the map and calculates summary statistics (on 'Summary' tab) based on that state."),
-                           selectInput("map_zoom",
-                                       "State:",
-                                       choices = c("US", 
-                                                   df_coord_states[, "Postal_Abbreviation"]),
-                                       selected = "US"),
+                           h3("1. Scale"),
+                           fluidRow(column(4, 
+                                           p(paste0("Choose a scale at which to view the map and summarize model output. ",
+                                                    "Select 'CONUS' to see the entire dataset or select a state to zoom in and get detailed summary.")),
+                                           selectInput("map_zoom",
+                                                       "State:",
+                                                       choices = c("", 
+                                                                   "CONUS",
+                                                                   df_coord_states[, "Postal_Abbreviation"]),
+                                                       selected = "")
+                                           ),
+                                    column(2,
+                                           radioButtons("rad_map_layertype",
+                                                        "Layer Type",
+                                                        choices = c("points", "polygons"),
+                                                        selected = "points")
+                                           ),
+                                    column(3, 
+                                           radioButtons("rad_map_crop",
+                                                        "Crop data to selected state?",
+                                                        choices = c("Yes", "No"),
+                                                        selected = "Yes")
+                                           )
+                                    ),
                            # hr(),
-                           h3("2. Data Selections"),
-                           p("Modify data/model"),
+                           h3("2. Model Choice"),
+                           p("Choose whether to model lakes, rivers, or both."),
                            fluidRow(column(width = 6,
                                            selectInput("map_water",
-                                                       "Scenario (Waterbody):",
+                                                       "Waterbody:",
                                                        # future have Lake or River
                                                        choices = c("Lake"), 
                                                        selected = "Lake"),
@@ -64,12 +86,24 @@ function() {
                                                        "Model:",
                                                        choices = model_models,
                                                        selected = model_models_default),
-                           h3("3. Change Scenarios"),
+                           h3("3. Scenarios"),
+                           p(paste0("Choose whether to update Risk calculations based on the minimum, ",
+                                     "1st quartile, mean, median, 3rd quartile, or maximum value ",
+                                     "from the population of available data for each of the top 20 variables. ",
+                                     "Select each variable individually or go to the dropdown menu and click ",
+                                     "'Change Parameters' below to select all at once.")),
                            selectInput("p_val_all",
                                        "Parameter Model Value:",
                                        choices = model_scenarios,
                                        selected = model_scenarios_default),
-                           bsButton("but_p_change_all", "Change Parameters Below"),
+                           shinyBS::bsButton("but_p_change_all", 
+                                             "Change Value Top 20 Parameters Below"),
+                           shinyBS::bsTooltip(id = "but_p_change_all",
+                                              title = paste0("Clicking this button will",
+                                                             " change all 20 variables below",
+                                                             " to the same model value as ",
+                                                             " specified in the selection box above."),
+                                              placement = "right"),
                            radioButtons("map_radio_p01",
                                         label = "p01",
                                         choices = model_scenarios,
@@ -171,10 +205,10 @@ function() {
                                         selected = model_scenarios_default,
                                         inline = TRUE)
                            ), # Column A
-                    column(width = 4,
-                           p("Use button to change the displayed parameters (top 20 by model influence)."),
-                           hr()
-                           ) # Column B
+                    # column(width = 4,
+                    #        p("Use button to change the displayed parameters (top 20 by model influence)."),
+                    #        hr()
+                    #        ) # Column B
                     ), # fluidRow
                            
                    ), # tabPanel ~ Selections
@@ -183,14 +217,24 @@ function() {
                    h3("Scenario"),
                    p(textOutput("str_water")),
                    p(textOutput("str_model")),
-                   plotOutput("plot_model_varimp"),
-                   tableOutput("table_model_varimp")
+                   fluidRow(
+                     column(6,
+                            h4("Variable Importance"),
+                            plotOutput("plot_model_varimp"),
+                            tableOutput("table_model_varimp")
+                            ),
+                     column(1),
+                     column(5,
+                            h4("Model Performance"),
+                            plotOutput("plot_model_perf"),
+                            tableOutput("table_model_perf")
+                            )
+                   )
                    ),
           tabPanel(title = "Summary",
                    p(em("Summary information based on user selections after clicking 'Update Map'.")),
                    hr(),
-                   plotOutput("plot_model_perf"),
-                   tableOutput("table_model_perf")
+                   
                    ), ## tabPanel ~ Summary
           tabPanel(title = "Map",
                    p(em("Map based on user selections after clicking 'Update Map'.")),

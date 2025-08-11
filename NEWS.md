@@ -1,11 +1,16 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-07-24 16:07:26.469241
+2025-08-11 12:42:52.915623
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-07-24 16:07:26.49565
+    #> Last Update: 2025-08-11 12:42:52.955118
+
+# HAB-DW-Risk-Viewer 0.1.0.9006 (2025-08-08)
+
+- refactor: Use points and not polygons
+- refactor: Update text on some tabs
 
 # HAB-DW-Risk-Viewer 0.1.0.9005 (2025-06-13)
 

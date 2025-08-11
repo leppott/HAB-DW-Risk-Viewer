@@ -14,12 +14,16 @@ knitr::opts_chunk$set(echo = FALSE
                       , message = FALSE)
 ```
 
-## Resources
+# Relevant Resources
 
-**Literature cited:**
+Brehob, Meredith, M. J. Pennino, R. Sabo, J. E. Compton, A. Handler, S. Lee. Estimates of lake nitrogen, phosphorus, and chlorophyll-a concentrations to characterize harmful algal bloom risk across the United States. Earth’s Future. http://dx.doi.org/10.1029/2024EF004493
 
+Coffer et al. 2021 “Assessing cyanobacterial frequency and abundance at surface waters near drinking water intakes across the United States” https://www.sciencedirect.com/science/article/pii/S0043135421005753 
 
+Clark et al. 2017 “Satellite monitoring of cyanobacterial harmful algal bloom frequency in recreational waters and drinking water sources” https://www.sciencedirect.com/science/article/pii/S1470160X17302194 
+
+Pennino et al. 2026 Impact of algal blooms on drinking water systems
 
 ---
 
-*Last updated 2025-02-13*
+*Last updated 2025-08-05*

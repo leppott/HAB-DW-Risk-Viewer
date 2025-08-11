@@ -1,7 +1,7 @@
 # Shiny Global File
 
 # Version ----
-pkg_version <- "0.1.0.9005"
+pkg_version <- "0.1.0.9006"
 
 # Packages ----
 library(shiny)
@@ -32,6 +32,7 @@ library(shinycssloaders) # spinner
 # library(vip)
 # ?error on Data Plots
 library(ranger)
+library(tigris) # state layer
 
 
 # Tabs ----
@@ -70,14 +71,24 @@ unlink(fn_results, recursive = TRUE) # to include dir use unlink instead of file
 load(file.path(dn_data, "HUC12_simple.rda"))
 # microbenchmark::microbenchmark(load(file.path(dn_data, "HUC12_simple.rda")), times = 3)
 # mean = 1.6 seconds
+# Change projection
+# leaflet wants WGS84
+HUC12_simple <- sf::st_transform(HUC12_simple, 4326) # 0.6 seconds
 
 load(file.path(dn_data, "HUC12_centroid.rda"))
-# microbenchmark::microbenchmark(load(file.path(dn_data, "HUC12_centroid.rda")), times = 3)
-# mean = 1.1 seconds
+# # microbenchmark::microbenchmark(load(file.path(dn_data, "HUC12_centroid.rda")), times = 3)
+# # mean = 1.1 seconds
+# transform to WGS84 (for use with leaflet)
+HUC12_centroid <- sf::st_transform(HUC12_centroid, 4326)
 
-load(file.path(dn_data, "HUC12_centroid_rf.rda"))
-load(file.path(dn_data, "HUC12_simple_rf.rda"))
-load(file.path(dn_data, "HUC12_rf.rda"))
+# HUC12_centroid$River_Risk <- runif(18)
+# HUC12_centroid$Lake_Risk <- runif(18)
+# HUC12_centroid$River_RF <- runif(18)
+# HUC12_centroid$Lake_RF <- runif(18)
+
+# 
+
+# load(file.path(dn_data, "HUC12_simple_rf.rda"))
 
 # test data
 # geojson_huc02@data$River_Risk <- runif(22)
@@ -94,21 +105,17 @@ HUC12_simple$River_RF <- runif(18)
 HUC12_simple$Lake_RF <- runif(18)
 
 
-HUC12_centroid$River_Risk <- runif(18)
-HUC12_centroid$Lake_Risk <- runif(18)
-HUC12_centroid$River_RF <- runif(18)
-HUC12_centroid$Lake_RF <- runif(18)
+# load(file.path(dn_data, "HUC12_centroid_rf.rda"))
+# HUC12_centroid_rf$River_Risk <- 42
+# HUC12_centroid_rf$Lake_Risk <- 42
+# HUC12_centroid_rf$River_RF <- 42
+# HUC12_centroid_rf$Lake_RF <- 42
 
-
-HUC12_centroid_rf$River_Risk <- 42
-HUC12_centroid_rf$Lake_Risk <- 42
-HUC12_centroid_rf$River_RF <- 42
-HUC12_centroid_rf$Lake_RF <- 42
-
-HUC12_rf$River_Risk <- 42
-HUC12_rf$Lake_Risk <- 42
-HUC12_rf$River_RF <- 42
-HUC12_rf$Lake_RF <- 42
+# load(file.path(dn_data, "HUC12_rf.rda"))
+# HUC12_rf$River_Risk <- 42
+# HUC12_rf$Lake_Risk <- 42
+# HUC12_rf$River_RF <- 42
+# HUC12_rf$Lake_RF <- 42
 
 
 # microbenchmark::microbenchmark(geojson_huc02 <- 
@@ -146,12 +153,6 @@ HUC12_rf$Lake_RF <- 42
 #                                                                      "huc12_raster.tif")),
 #                                times = 3)
 # mean = 3.6 ms
-
-
-# load(file.path(dn_data, "HUC12_simple.rda"))
-# microbenchmark::microbenchmark(load(file.path(dn_data, "HUC12_simple.rda")),
-#                                times = 3)
-# mean = 2.2 s
 
 
 # Colors ----
@@ -205,6 +206,13 @@ df_coord_states <- read.csv(file.path("data",
                                       "us_states_geographic_boundaries.csv"))
 # Bounding Box, CONUS
 bbox_conus <- c(-124.7844079, 49.3457868, -66.9513812, 24.7433195)
+
+# Bounding Box, western US (MS River)
+#                 WA = west,  MN = north, LA = east, TX = south,  
+bbox_westus <- c(-124.848974, 49.384358, -88.817017, 24.7433195)
+
+# States
+sf_states <- tigris::states(cb = TRUE, class = "sf")
 
 # ggsave options
 plot_device <- "png"
@@ -315,7 +323,8 @@ mod_varimp_cyan <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 mod_varimp_dbp <- 
   data.frame(Variable = names(rfr_DBP_model$variable.importance),
@@ -325,7 +334,8 @@ mod_varimp_dbp <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 mod_varimp_dwops <- 
   data.frame(Variable = names(rfr_DWOps_Risk_model$variable.importance),
@@ -335,7 +345,8 @@ mod_varimp_dwops <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 mod_varimp_habdw <- 
   data.frame(Variable = names(rfr_lake_Risk_model$variable.importance),
@@ -345,7 +356,8 @@ mod_varimp_habdw <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
   # dplyr::select(dplyr::all_of(cols_modvar_display))
 
 mod_varimp_lake <- 
@@ -356,7 +368,8 @@ mod_varimp_lake <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 mod_varimp_treat <- 
   data.frame(Variable = names(rfr_Treat_Risk_model$variable.importance),
@@ -366,7 +379,8 @@ mod_varimp_treat <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 mod_varimp_viol <- 
   data.frame(Variable = names(rfr_Viol_Risk_model$variable.importance),
@@ -376,7 +390,8 @@ mod_varimp_viol <-
   dplyr::left_join(y = dplyr::select(mod_var_types, -Importance),
                    by = dplyr::join_by(Model, Variable)) |>
   dplyr::mutate(Row = dplyr::row_number()) |>
-  dplyr::mutate(User_Select = "mean")
+  dplyr::mutate(User_Select = "mean") |>
+  dplyr::rename(Location = Effect_Type)
 
 
 ## Models, Test ----

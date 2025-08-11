@@ -21,6 +21,11 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.1.0.9006 (2025-08-08)
+
+* refactor: Use points and not polygons
+* refactor: Update text on some tabs
+
 # HAB-DW-Risk-Viewer 0.1.0.9005 (2025-06-13)
 
 * nearly finished version, still have work to do

@@ -11,23 +11,8 @@
 # library(shiny)
 
 # Server ----
-# Define server logic required to draw a histogram
 function(input, output, session) {
 
-  ## Plot ----
-  output$distPlot <- renderPlot({
-
-      # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2]
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white',
-           xlab = 'Waiting time to next eruption (in mins)',
-           main = 'Histogram of waiting times')
-
-  })## hist
-  
   ## Map, Base ----
   output$map_huc <- renderLeaflet({
 
@@ -41,51 +26,13 @@ function(input, output, session) {
       addLayersControl(baseGroups = c("Positron",
                                       "Open Street Map",
                                       "ESRI World Imagery")) |>
-      # HUC Layer
-      # leaflet::addPolygons(data = HUC12_simple,
-      #             popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
-      #                             "Name: ", name, as.character("<br>"),
-      #                             "Results: ", input$map_results, as.character("<br>"),
-      #                             "Waterbody: ", input$map_water),
-      #             weight = 1,
-      #             color = "black",
-      #             fillColor = "blue",
-      #             smoothFactor = 5) |>
-      # leaflet::addPolygons(data = HUC12_simple,
-      #                      popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-      #                                      "Name: ", HU_12_NAME, as.character("<br>"),
-      #                                      "Model: ", input$map_results, as.character("<br>"),
-      #                                      "Waterbody: ", input$map_water, as.character("<br>"),
-      #                                      "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-      #                                      "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-      #                                      "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-      #                                      "Results, Lake RF:", round(Lake_RF, 1)
-      #                                      ),
-      #                      weight = 1,
-      #                      color = "darkgray",
-      #                      # fillColor = "skyblue",
-      #                      # fillColor = ~sel_user_pal(),
-      #                      fillColor = colorNumeric(
-      #                        palette = "viridis",
-      #                        domain = HUC12_simple$"River_Risk")(HUC12_simple$"River_Risk"),
-      #                      smoothFactor = 0,
-      #                      highlightOptions = highlightOptions(bringToFront = TRUE,
-      #                                                          color = "darkgreen",
-      #                                                          fillColor = "green",
-      #                                                          weight = 3)) |>
-      
-      # addRasterImage(raster_huc12, opacity = 0.8) |>
-      # Legend
-      # addLegend("bottomleft",
-      #           colors = "green",
-      #           labels = "HUC02",
-      #           values = NA) |>
-      # Layers
       # Mini map
       leaflet::addMiniMap(toggleDisplay = TRUE) |>
       # Bounds
-      fitBounds(bbox_conus[1], bbox_conus[2], bbox_conus[3], bbox_conus[4])
-
+      fitBounds(bbox_conus[1], 
+                bbox_conus[2], 
+                bbox_conus[3], 
+                bbox_conus[4])
       
   })## map_huc
   
@@ -131,12 +78,25 @@ function(input, output, session) {
     
     # create a new map?\
     
-    mapdatatype <- "centroid_rf" # "polygon_simple", "centroid", "polygon_rf", "centroid_rf"
-
-    ## Map, bbox 
+    ### change view ----
+    # updateTabItems(session, "tabs", "Map Selections")
+    updateTabsetPanel(session, "inSelections", "Map")
+ 
+    ## Layer Type ----
+    # mapdatatype <- "polygon_simple" 
+    # "polygon_simple", "centroid", "polygon_rf", "centroid_rf"
+    if (input$rad_map_layertype == "points") {
+      mapdatatype <- "centroid" 
+    } else if (input$rad_map_layertype == "polygons") {
+      mapdatatype <- "polygon_simple"
+    }## IF ~ layer type
+    
+    ## Map, bbox ----
     sel_map_zoom <- input$map_zoom
     if (sel_map_zoom == "US") {
       bbox_zoom <- bbox_conus
+    } else if (sel_map_zoom == "US west") {
+      bbox_zoom <- bbox_westus
     } else {
       df_zoom <- df_coord_states |>
         filter(Postal_Abbreviation == sel_map_zoom)
@@ -146,7 +106,7 @@ function(input, output, session) {
                      df_zoom$Min_Latitude)
     }## IF ~ sel_map_zoom
   
-    ### Data, User ----
+    ## Data, User ----
     sel_map_model <- input$map_model
     
     if(sel_map_model == "cyan") {
@@ -172,7 +132,7 @@ function(input, output, session) {
       rfr_ranger <- rfr_Viol_Risk_model 
     }## IF ~ sel_map_model
     
-    # Scenario - User Select
+    ## Scenario - User Select----
     mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
     mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
     mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
@@ -330,7 +290,7 @@ function(input, output, session) {
     write.csv(mod_scen_user, 
               file.path("results", "model_scenario_user_values.csv"),
               row.names = FALSE)
- # browser()
+
     ## Model Predict ----
     # model == rfr_ranger (based on user selection)
     # prediction data == mean data with user mods for top 20
@@ -352,41 +312,84 @@ function(input, output, session) {
               file.path("results", "predictions_user.csv"),
               row.names = FALSE)
     
-    # MERGE results with HUC12 geo
-        
+    # MERGE results with HUC12
+
+
     ## update leaflet ----
+    
     if(mapdatatype == "centroid") {
-      leafletProxy("map_huc", data = HUC12_centroid) |>
+      browser
+      ### centroid ----
+      
+      sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
+      
+      # Crop Data 
+      if (input$rad_map_crop == "Yes") {
+        # crop data to selected state
+        data_proxy <- sf::st_crop(HUC12_centroid,
+                                         sf::st_bbox(
+                                           c(xmin = bbox_zoom[1],
+                                             xmax = bbox_zoom[3],
+                                             ymin = bbox_zoom[4],
+                                             ymax = bbox_zoom[2])))
+      } else {
+        # # crop to western US
+        # data_proxy <- sf::st_crop(HUC12_centroid,
+        #                                    sf::st_bbox(
+        #                                      c(xmin = bbox_westus[1],
+        #                                        xmax = bbox_westus[3],
+        #                                        ymin = bbox_westus[4],
+        #                                        ymax = bbox_westus[2])))
+        # CONUS
+        data_proxy <- HUC12_centroid
+      }## IF ~ rad_map_crop
+      
+      
+      
+      leafletProxy("map_huc") |> #, data = data_proxy) |>
         # add spinner
         # addSpinner() |>
         # clean up map before adding to it
         clearControls() |>
         clearShapes() |>
         clearMarkers() |>
+        # Bounds
+        fitBounds(bbox_zoom[1], 
+                  bbox_zoom[2], 
+                  bbox_zoom[3], 
+                  bbox_zoom[4]) |>
         # Add HUC
-        leaflet::addCircleMarkers(lng = ~Longitude,
+        leaflet::addCircleMarkers(data = data_proxy,
+                                  lng = ~Longitude,
                                   lat = ~Latitude,
                                   color = "darkgray",
                                   fillColor = colorNumeric(
                                     palette = "viridis",
-                                    domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
+                                    domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
                                   group = "HUC12",
-                                  popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-                                                  "Name: ", HU_12_NAME, as.character("<br>"),
-                                                  "Model: ", input$map_results, as.character("<br>"),
-                                                  "Waterbody: ", input$map_water, as.character("<br>"),
-                                                  "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                                  "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                                  "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                                  "Results, Lake RF:", round(Lake_RF, 1)
-                                  )) |>
-        # Layers, Control
-        addLayersControl(baseGroups = c("Positron",
-                                        "Open Street Map",
-                                        "ESRI World Imagery"),
-                         overlayGroups = "HUC12") |>
-      # Bounds
-      fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+                                  # popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                  #                 "Name: ", HU_12_NAME, as.character("<br>"),
+                                  #                 # "Model: ", input$map_results, as.character("<br>"),
+                                  #                 # "Waterbody: ", input$map_water, as.character("<br>"),
+                                  #                 "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                  #                 "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                  #                 "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                  #                 "Results, Lake RF:", round(Lake_RF, 1)
+                                  # )
+                                  ) |>
+          addPolygons(data = sf_states,
+                      fillColor = NULL,
+                      color = "black",
+                      weight = 1.5,
+                      opacity = 1,
+                      fillOpacity = 0,
+                      group = "States") |>
+          # Layers, Control
+          addLayersControl(baseGroups = c("Positron",
+                                          "Open Street Map",
+                                          "ESRI World Imagery"),
+                           overlayGroups = c("HUC12", "States"))
+        
       # Spinner, Stop
       # stopSpinner()
       # Layers, Hide
@@ -396,6 +399,7 @@ function(input, output, session) {
       
       
     } else if (mapdatatype == "centroid_rf") {
+      ### centroid_rf ----
       leafletProxy("map_huc", data = HUC12_centroid_rf) |>
         # add spinner
         # addSpinner() |>
@@ -426,7 +430,10 @@ function(input, output, session) {
                                         "ESRI World Imagery"),
                          overlayGroups = "HUC12") |>
         # Bounds
-        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+        fitBounds(bbox_zoom[1], 
+                  bbox_zoom[2], 
+                  bbox_zoom[3], 
+                  bbox_zoom[4])
       # Spinner, Stop
       # stopSpinner()
       # Layers, Hide
@@ -436,52 +443,78 @@ function(input, output, session) {
       
       
     } else if (mapdatatype == "polygon_simple") {
-      leafletProxy("map_huc", data = HUC12_simple) |>
-        # add spinner
-        # addSpinner() |>
+      ### polygon_simple ----
+
+      sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
+      
+      # Crop Data 
+      if (input$rad_map_crop == "Yes") {
+        # crop data to selected state
+        data_proxy <- sf::st_crop(HUC12_simple,
+                                         sf::st_bbox(
+                                           c(xmin = bbox_zoom[1],
+                                             xmax = bbox_zoom[3],
+                                             ymin = bbox_zoom[4],
+                                             ymax = bbox_zoom[2])))
+      } else {
+        # crop to western US
+        # data_proxy <- sf::st_crop(HUC12_simple,
+        #                                  sf::st_bbox(
+        #                                    c(xmin = bbox_westus[1],
+        #                                      xmax = bbox_westus[3],
+        #                                      ymin = bbox_westus[4],
+        #                                      ymax = bbox_westus[2])))
+        # CONUS
+        data_proxy <- HUC12_simple
+      }## IF ~ rad_map_crop
+      
+      leaflet::leafletProxy("map_huc") |> # , data = HUC12_simple) |>
         # clean up map before adding to it
         clearControls() |>
         clearShapes() |>
         clearMarkers() |>
         # Add HUC
-        leaflet::addPolygons(data = HUC12_simple,
-                             group = "HUC12",
-                             popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-                                             "Name: ", HU_12_NAME, as.character("<br>"),
-                                             "Model: ", input$map_results, as.character("<br>"),
-                                             "Waterbody: ", input$map_water, as.character("<br>"),
-                                             "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                             "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                             "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                             "Results, Lake RF:", round(Lake_RF, 1)
-                                             ),
-                             weight = 1,
-                             color = "darkgray",
-                             # fillColor = "skyblue",
-                             # fillColor = ~sel_user_pal(),
-                             fillColor = colorNumeric(
-                               palette = "viridis",
-                               domain = HUC12_simple$"River_Risk")(HUC12_simple$"River_Risk"),
-                             smoothFactor = 0,
-                             highlightOptions = highlightOptions(bringToFront = TRUE,
-                                                                 color = "darkgreen",
-                                                                 fillColor = "green",
-                                                                 weight = 3)) |>
-        # Layers, Control
-        addLayersControl(baseGroups = c("Positron",
-                                        "Open Street Map",
-                                        "ESRI World Imagery"),
-                         overlayGroups = "HUC12") |>
-        # Bounds
-        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
-      # Spinner, Stop
-      # stopSpinner()
-      # Layers, Hide
-      #hideGroup("HUC12") # if hide by default not sure when loaded
-      # Zoom in 
-      # setView(zoom = 7) # needs lat long
+         leaflet::addPolygons(data = data_proxy,
+                              group = "HUC12",
+                              popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                              "Name: ", HU_12_NAME, as.character("<br>"),
+                                              "Model: ", input$map_results, as.character("<br>"),
+                                              "Waterbody: ", input$map_water, as.character("<br>"),
+                                              "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                              "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                              "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                              "Results, Lake RF:", round(Lake_RF, 1)
+                                              ),
+                               weight = 1,
+                               color = "darkgray",
+                               # fillColor = "skyblue",
+                               # fillColor = ~sel_user_pal(),
+                              fillColor = colorNumeric(
+                                palette = "viridis",
+                                domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
+                              # smoothFactor = 0,
+                              highlightOptions = highlightOptions(bringToFront = TRUE,
+                                                                  color = "darkgreen",
+                                                                  fillColor = "green",
+                                                                  weight = 3)
+                              ) |>
+#       #   # Layers, Control
+#       #   addLayersControl(baseGroups = c("Positron",
+#       #                                   "Open Street Map",
+#       #                                   "ESRI World Imagery"),
+#       #                    overlayGroups = "HUC12") |>
+      #   # Bounds
+        fitBounds(bbox_zoom[1],
+                  bbox_zoom[2],
+                  bbox_zoom[3],
+                  bbox_zoom[4])
+#       # # Layers, Hide
+#       # #hideGroup("HUC12") # if hide by default not sure when loaded
+#       # # Zoom in 
+#       # # setView(zoom = 7) # needs lat long
       
     } else if (mapdatatype == "polygon_rf") {
+      ### polygon_rf ----
       leafletProxy("map_huc", data = HUC12_rf) |>
         # add spinner
         # addSpinner() |>
@@ -521,7 +554,10 @@ function(input, output, session) {
                                         "ESRI World Imagery"),
                          overlayGroups = "HUC12") |>
         # Bounds
-        fitBounds(bbox_zoom[1], bbox_zoom[2], bbox_zoom[3], bbox_zoom[4])
+        fitBounds(bbox_zoom[1], 
+                  bbox_zoom[2], 
+                  bbox_zoom[3], 
+                  bbox_zoom[4])
       # Spinner, Stop
       # stopSpinner()
       # Layers, Hide
@@ -531,9 +567,7 @@ function(input, output, session) {
       
     }
     
-    ## change view ----
-    # updateTabItems(session, "tabs", "Map Selections")
-    updateTabsetPanel(session, "inSelections", "Map")
+  
     
   })## observer ~ but_map_update
   
@@ -990,847 +1024,1001 @@ function(input, output, session) {
     ### Lab, cyan ----  
     mod_radio <- mod_varimp_cyan
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                      
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                       
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                       
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                     
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
+                           mod_radio[9, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
                            " (Importance = ", 
                            round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           ")",                         
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if (sel_map_model == "DBP") {
     ### Lab, dbp ----
     mod_radio <- mod_varimp_dbp
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                            
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                            
+                           " [Location = ",
+                           mod_radio[9, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if (sel_map_model == "DWOps_Risk") {
     ### Lab, dwops ----
     mod_radio <- mod_varimp_dwops
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
+                           mod_radio[9, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if (sel_map_model == "HABDW_Risk") {
     ### Lab, habdw ----
     mod_radio <- mod_varimp_habdw
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
+                           mod_radio[9, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                       
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if(sel_map_model == "lake_Risk") {
     ### Lab, lake ----
     mod_radio <- mod_varimp_lake
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
+                           mod_radio[9, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if (sel_map_model == "Treat_Risk") {
     ### Lab, treat ----
     mod_radio <- mod_varimp_treat
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                      
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
+                           mod_radio[11, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else if (sel_map_model == "Viol_Risk") {
     ### Lab, viol ----
     mod_radio <- mod_varimp_viol
     lab_radio_01 <- paste0(mod_radio[1, 1],
-                           " (Importance = ", 
-                           round(mod_radio[1, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[1, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[1, 4],
                            "]")
     lab_radio_02 <- paste0(mod_radio[2, 1],
-                           " (Importance = ", 
-                           round(mod_radio[2, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[2, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[2, 4],
                            "]")
     lab_radio_03 <- paste0(mod_radio[3, 1],
-                           " (Importance = ", 
-                           round(mod_radio[3, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[3, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[3, 4],
                            "]")
     lab_radio_04 <- paste0(mod_radio[4, 1],
-                           " (Importance = ", 
-                           round(mod_radio[4, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[4, 2], rnd_imp),
+                           # ")",                       
+                           " [Location = ",
                            mod_radio[4, 4],
                            "]")
     lab_radio_05 <- paste0(mod_radio[5, 1],
-                           " (Importance = ", 
-                           round(mod_radio[5, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[5, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[5, 4],
                            "]")
     lab_radio_06 <- paste0(mod_radio[6, 1],
-                           " (Importance = ", 
-                           round(mod_radio[6, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[6, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[6, 4],
                            "]")
     lab_radio_07 <- paste0(mod_radio[7, 1],
-                           " (Importance = ", 
-                           round(mod_radio[7, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[7, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[7, 4],
                            "]")
     lab_radio_08 <- paste0(mod_radio[8, 1],
-                           " (Importance = ", 
-                           round(mod_radio[8, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[8, 2], rnd_imp),
+                           # ")",                       
+                           " [Location = ",
                            mod_radio[8, 4],
                            "]")
     lab_radio_09 <- paste0(mod_radio[9, 1],
-                           " (Importance = ", 
-                           round(mod_radio[9, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[9, 2], rnd_imp),
+                           # ")",                         
+                           " [Location = ",
                            mod_radio[9, 4],
                            "]")
     lab_radio_10 <- paste0(mod_radio[10, 1],
-                           " (Importance = ", 
-                           round(mod_radio[10, 2], rnd_imp),
-                           ")")
+                           # " (Importance = ", 
+                           # round(mod_radio[10, 2], rnd_imp),
+                           # ")",                            
+                           " [Location = ",
+                           mod_radio[11, 4],
+                           "]")
     lab_radio_11 <- paste0(mod_radio[11, 1],
-                           " (Importance = ", 
-                           round(mod_radio[11, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[11, 2], rnd_imp),
+                           # ")",                            
+                           " [Location = ",
                            mod_radio[11, 4],
                            "]")
     lab_radio_12 <- paste0(mod_radio[12, 1],
-                           " (Importance = ", 
-                           round(mod_radio[12, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[12, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[12, 4],
                            "]")
     lab_radio_13 <- paste0(mod_radio[13, 1],
-                           " (Importance = ", 
-                           round(mod_radio[13, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[13, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[13, 4],
                            "]")
     lab_radio_14 <- paste0(mod_radio[14, 1],
-                           " (Importance = ", 
-                           round(mod_radio[14, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[14, 2], rnd_imp),
+                           # ")",                           
+                           " [Location = ",
                            mod_radio[14, 4],
                            "]")
     lab_radio_15 <- paste0(mod_radio[15, 1],
-                           " (Importance = ", 
-                           round(mod_radio[15, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[15, 2], rnd_imp),
+                           # ")",                          
+                           " [Location = ",
                            mod_radio[15, 4],
                            "]")
     lab_radio_16 <- paste0(mod_radio[16, 1],
-                           " (Importance = ", 
-                           round(mod_radio[16, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[16, 2], rnd_imp),
+                           # ")",                        
+                           " [Location = ",
                            mod_radio[16, 4],
                            "]")
     lab_radio_17 <- paste0(mod_radio[17, 1],
-                           " (Importance = ", 
-                           round(mod_radio[17, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[17, 2], rnd_imp),
+                           # ")",                    
+                           " [Location = ",
                            mod_radio[17, 4],
                            "]")
     lab_radio_18 <- paste0(mod_radio[18, 1],
-                           " (Importance = ", 
-                           round(mod_radio[18, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[18, 2], rnd_imp),
+                           # ")",                   
+                           " [Location = ",
                            mod_radio[18, 4],
                            "]")
     lab_radio_19 <- paste0(mod_radio[19, 1],
-                           " (Importance = ", 
-                           round(mod_radio[19, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[19, 2], rnd_imp),
+                           # ")",                      
+                           " [Location = ",
                            mod_radio[19, 4],
                            "]")
     lab_radio_20 <- paste0(mod_radio[20, 1],
-                           " (Importance = ", 
-                           round(mod_radio[20, 2], rnd_imp),
-                           ") [Type = ",
+                           # " (Importance = ", 
+                           # round(mod_radio[20, 2], rnd_imp),
+                           # ")",
+                           " [Location = ",
                            mod_radio[20, 4],
                            "]")
   } else {
