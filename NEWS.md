@@ -1,11 +1,18 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-11 15:00:15.135337
+2025-08-11 16:51:21.059795
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-11 15:00:15.161427
+    #> Last Update: 2025-08-11 16:51:21.094001
+
+# HAB-DW-Risk-Viewer 0.1.0.9008 (2025-08-11)
+
+- feature: Add summary plots and tables
+  - placeholders only
+- refactor: Add tigiris cache
+- docs: Add missing packages from imported summary code
 
 # HAB-DW-Risk-Viewer 0.1.0.9007 (2025-08-11)
 

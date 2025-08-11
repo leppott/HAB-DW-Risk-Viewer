@@ -1,7 +1,7 @@
 # Shiny Global File
 
 # Version ----
-pkg_version <- "0.1.0.9007"
+pkg_version <- "0.1.0.9008"
 
 # Packages ----
 library(shiny)
@@ -15,8 +15,8 @@ library(shinyBS) # nice buttons
 # library(DT)
 # # masks shinydashboardPlus::progressBar
 # # masks shinyjs::alert
-# library(dplyr)
-# # library(tidyr)
+library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(plotly)
 # library(readxl)
@@ -34,7 +34,6 @@ library(shinycssloaders) # spinner
 library(ranger)
 library(tigris) # state layer
 
-
 # Tabs ----
 db_main_sb            <- source("external/db_main_sb.R", local = TRUE)$value
 db_main_body          <- source("external/db_main_body.R", local = TRUE)$value
@@ -44,10 +43,13 @@ tab_code_selections   <- source("external/tab_selections.R", local = TRUE)$value
 tab_code_resources    <- source("external/tab_resources.R", local = TRUE)$value
 tab_code_troubleshoot <- source("external/tab_troubleshoot.R"
                                 , local = TRUE)$value
-
 # Global ----
 dn_data <- "data"
 dn_results <- "results"
+
+# tigris package settings
+options(tigris_use_cache = TRUE)
+tigris::tigris_cache_dir(dn_data)
 
 # remove files
 path_results <- file.path(dn_results)

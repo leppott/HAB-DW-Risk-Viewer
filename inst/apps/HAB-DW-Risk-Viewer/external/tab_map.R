@@ -4,6 +4,7 @@ function() {
         tabsetPanel(type = "tabs",
                   id = "inSelections",
                   tabPanel(title = "Selections",
+                           # Selections ----
                            h3("Update Map"),
                            p(paste0("After making changes below click the button here to update the map. ",
                                     "Adding the HUC12 layers takes about 1 minute.")),
@@ -26,10 +27,11 @@ function() {
                                                        selected = "")
                                            ),
                                     column(2,
-                                           radioButtons("rad_map_layertype",
+                                           shinyjs::hidden(radioButtons("rad_map_layertype",
                                                         "Layer Type",
                                                         choices = c("points", "polygons"),
-                                                        selected = "points")
+                                                        selected = "points"))
+                                           # p("'polygons' option takes 30-60 seconds to render map.")
                                            ) #,
                                     # column(3, 
                                     #        radioButtons("rad_map_crop",
@@ -178,6 +180,7 @@ function() {
                            
                    ), # tabPanel ~ Selections
           tabPanel(title = "Model Info",
+                   # Model Info ----
                    p("Model information based on user selections."),
                    h3("Scenario"),
                    p(textOutput("str_water")),
@@ -197,11 +200,23 @@ function() {
                    )
                    ),
           tabPanel(title = "Summary",
+                   # Summary ----
                    p(em("Summary information based on user selections after clicking 'Update Map'.")),
                    hr(),
+                   fluidRow(
+                     column(5,
+                            plotOutput("plot_summ_cdf")),
+                     column(1),
+                     column(5,
+                            plotOutput("plot_summ_box"),
+                            plotOutput("plot_summ_box_singlevar"))
+                   ),
+                   
+                   tableOutput("table_summ")
                    
                    ), ## tabPanel ~ Summary
           tabPanel(title = "Map",
+                   # Map ----
                    p(em("Map based on user selections after clicking 'Update Map'.")),
                    withSpinner(leafletOutput("map_huc",
                                              height = "85vh"))

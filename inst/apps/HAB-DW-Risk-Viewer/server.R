@@ -572,32 +572,175 @@ function(input, output, session) {
   })## observer ~ but_map_update
   
   ## Summary Stats, State ----
+  # CDF, Bar charts, box plots, etc. 
   
-  
+  ### CDF ----
   # plot_sum_cdf <- eventReactive(input$but_map_range, {
   output$plot_summ_cdf <- renderPlot({
     
-    sel_map_zoom <- input$map_zoom
+    # # respstate is merged scenario and HUC data
+    # # scenarios
+    # 
+    # sel_map_zoom <- input$map_zoom
+    # 
+    # # may not use if/then in final, 
+    # # use user selection on variables for model
+    # sel_map_model <- input$map_model
+    # sel_map_water <- input$map_water
+    # 
+    # if (sel_map_zoom == "" | sel_map_zoom == "CONUS") {
+    #   # For all states
+    #   p_cdf <- ggplot2::ggplot(scenarios, 
+    #                            ggplot2::aes(scenarios[, varname])) + 
+    #     ggplot2::stat_ecdf(geom = "step")+
+    #     ggplot2::labs(x = "Risk Score", 
+    #                   y = "Proportion",
+    #                   title = "CONUS")
+    # } else {
+    #   # Subset out Stat
+    #   state_sub = resp_state[resp_state$STATE == sel_map_zoom, ]
+    #   state_sub = state_sub[complete.cases(state_sub[,c("HUC12")]),] 
+    #   
+    #   # Subset out variable:
+    #   varname = sel_map_model #'Pred_HABDW_Risk_mean'
+    #   state_sub2 = state_sub[, c('HUC12', varname)]
+    #   #names(state_sub2)[2] = 'VARIABLE'
+    #   
+    #   # For specified State
+    #   p_cdf_<- ggplot2::ggplot(state_sub, 
+    #                            ggplot2::aes(state_sub[, varname])) + 
+    #     ggplot2::stat_ecdf(geom = "step")+
+    #     ggplot2::labs(x = "Risk Score", 
+    #                   y = "Proportion",
+    #                   title = sel_map_zoom)
+    # }## IF ~ sel_map_zoom
+    # 
+    # return(p_cdf)
     
-    # may not use if/then in final, use user selection on variables for model
-    sel_map_model <- input$map_model
-    sel_map_water <- input$map_water
-
-    
-    # mod_test |>
-    #   ggplot2::ggplot(ggplot2::aes())
-    
-    
+    plot.ecdf(rnorm(24))
     
   })## plot_summ_cdf
   
-  # box
-  # box single variable
-  # table
+  ### box ----
+  output$plot_summ_box <- renderPlot({ 
+    # # Remove Cyan and DBP 
+    # 
+    # state_sub. = state_sub %>% 
+    #   dplyr::select(-contains(c("DBP","Cyan"))) %>% 
+    #   tidyr::drop_na(HUC12)
+    # 
+    # # Select all mean, median, 1stQ, etc.
+    # BOX_category1 = state_sub. %>% 
+    #   dplyr::select(contains(c('HUC12',"mean"))) %>%
+    #   tidyr::drop_na(HUC12)
+    # 
+    # # Select single variable but keep mean, median, max, etc.
+    # BOX_category2 = state_sub. %>%
+    #   dplyr::select(contains(c('HUC12',"HABDW"))) %>% 
+    #   tidyr::drop_na(HUC12)
+    # 
+    # BOX_category1. = reshape2::melt(BOX_category1, id = 'HUC12')
+    # BOX_category2. = reshape2::melt(BOX_category2, id = 'HUC12')
+    # 
+    # order1 = c('Pred_HABDW_Risk_mean',
+    #            'Pred_HABDW_Risk_min',
+    #            'Pred_HABDW_Risk_1stQ',
+    #            'Pred_HABDW_Risk_median',
+    #            'Pred_HABDW_Risk_3rdQ',
+    #            'Pred_HABDW_Risk_max')
+    # 
+    # 
+    # # Plot the different variables together
+    # ggplot2::ggplot(BOX_category1., 
+    #                 ggplot2::aes(y=value,
+    #            x=as.factor(variable), 
+    #            fill=as.factor(variable)))+
+    #   ggplot2::geom_boxplot()+
+    #   #scale_y_log10()+
+    #   ggplot2::ggtitle( "Surface Water")+
+    #   ggplot2::labs(x="", y="Risk")+
+    #   ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))+#puts title in center
+    #   ggplot2::theme(legend.position="none")+
+    #   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))+
+    #   #theme(panel.background = element_blank())+ # remove grey background
+    #   ggplot2::theme(axis.line = ggplot2::element_line(colour = "black")) # add axis lines
+    # 
+    # # Change order of categories
+    # BOX_category2.$variable <- factor(BOX_category2.$variable, 
+    #                                   levels = order1)
+    # 
+    
+    
+    boxplot(mtcars)
+    title("box plot")
+    
+     })
   
   
+  ### box single variable----
+  output$plot_summ_box_singlevar <- renderPlot({ 
   
+    # # Plot single variable
+    # ggplot(BOX_category2., 
+    #        aes(y=value,
+    #            x=as.factor(variable), 
+    #            fill=as.factor(variable)))+
+    #   geom_boxplot()+
+    #   #scale_y_log10()+
+    #   #ggtitle( "Response")+
+    #   labs(x="",y="Risk")+
+    #   theme(plot.title = element_text(hjust = 0.5))+#puts title in center
+    #   theme(legend.position="none")+
+    #   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+    #   #theme(panel.background = element_blank())+ # remove grey background
+    #   theme(axis.line = element_line(colour = "black")) # add axis lines
+    
+    boxplot(mtcars)
+    title("box plot, single variable")
+    
+  })
   
+  ### table----
+  
+  # Table of Mean Min Max for different variables
+  output$table_summ <- renderTable({
+    
+    # respstate is merged scenario and HUC data
+
+    sel_map_zoom <- input$map_zoom
+    
+    # may not use if/then in final, 
+    # use user selection on variables for model
+    sel_map_model <- input$map_model
+    sel_map_water <- input$map_water
+    
+    # if (sel_map_zoom == "" | sel_map_zoom == "CONUS") {
+    #   # For all states
+    #   state_sub = resp_state
+    # } else {
+    #   # For specified State
+    #   # Subset out Stat
+    #   state_sub = resp_state[resp_state$STATE == sel_map_zoom, ]
+    #   #names(state_sub2)[2] = 'VARIABLE'
+    # }## IF ~ sel_map_zoom
+    # 
+    # state_sub = state_sub[complete.cases(state_sub[,c("HUC12")]),] 
+    # 
+    # # Subset out variable:
+    # varname = sel_map_model #'Pred_HABDW_Risk_mean'
+    # state_sub2 = state_sub[, c('HUC12', varname)]
+    # 
+    # temptable = data.frame(
+    #   mean = mean(state_sub[,varname],na.rm = TRUE),
+    #   median = median(state_sub[,varname],na.rm = TRUE),
+    #   min = min(state_sub[,varname],na.rm = TRUE),
+    #   max = max(state_sub[,varname],na.rm = TRUE),
+    #   Quartile1st = quantile(state_sub[,varname], 0.25, na.rm = TRUE),
+    #   Quartile3rd =quantile(state_sub[,varname], 0.75, na.rm = TRUE))
+    
+    mtcars
+
+  })
   ## Model Performance ----
   
   ### Mod Perf, Plot ----

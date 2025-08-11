@@ -21,6 +21,13 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.1.0.9008 (2025-08-11)
+
+* feature: Add summary plots and tables
+    + placeholders only
+* refactor: Add tigiris cache
+* docs: Add missing packages from imported summary code
+
 # HAB-DW-Risk-Viewer 0.1.0.9007 (2025-08-11)
 
 * refactor: Add USEPA template for web
