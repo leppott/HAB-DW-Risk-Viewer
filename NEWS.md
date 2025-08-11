@@ -1,11 +1,17 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-11 12:42:52.915623
+2025-08-11 15:00:15.135337
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-11 12:42:52.955118
+    #> Last Update: 2025-08-11 15:00:15.161427
+
+# HAB-DW-Risk-Viewer 0.1.0.9007 (2025-08-11)
+
+- refactor: Add USEPA template for web
+- refactor: Remove ‘crop’ button, leave in code
+- docs: Add packages to DESCRIPTION
 
 # HAB-DW-Risk-Viewer 0.1.0.9006 (2025-08-08)
 

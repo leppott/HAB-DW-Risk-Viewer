@@ -1,0 +1,8 @@
+"Model Uncertainty Metrics","Values"
+"r.squared (reported by Ranger function)","0.9547"
+"prediction.error (reported by Ranger function)","0.0010"
+"R squared (testing set)","0.9790"
+"Root Mean Squared Error","0.0199"
+"Mean Bias","0.0048"
+"Standard deviation of the error","0.0195"
+"Nash-Sutcliffe efficiency coefficient","0.9776"

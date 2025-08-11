@@ -21,6 +21,12 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.1.0.9007 (2025-08-11)
+
+* refactor: Add USEPA template for web
+* refactor: Remove 'crop' button, leave in code
+* docs: Add packages to DESCRIPTION
+
 # HAB-DW-Risk-Viewer 0.1.0.9006 (2025-08-08)
 
 * refactor: Use points and not polygons

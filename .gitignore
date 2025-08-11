@@ -48,3 +48,5 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 inst/apps/HAB-DW-Risk-Viewer/external/rmd/rmd_html - Shortcut.lnk
+# {shinytest2}: Ignore new debug snapshots for `$expect_values()`
+*_.new.png
