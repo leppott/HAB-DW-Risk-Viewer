@@ -32,7 +32,7 @@ library(shinycssloaders) # spinner
 # library(vip)
 # ?error on Data Plots
 library(ranger)
-library(tigris) # state layer
+# library(tigris) # state layer
 
 # Tabs ----
 db_main_sb            <- source("external/db_main_sb.R", local = TRUE)$value
@@ -47,9 +47,6 @@ tab_code_troubleshoot <- source("external/tab_troubleshoot.R"
 dn_data <- "data"
 dn_results <- "results"
 
-# tigris package settings
-options(tigris_use_cache = TRUE)
-tigris::tigris_cache_dir(dn_data)
 
 # remove files
 path_results <- file.path(dn_results)
@@ -61,6 +58,10 @@ unlink(fn_results, recursive = TRUE) # to include dir use unlink instead of file
 
 
 # Data ----
+
+# States Layer
+sf_states <- readRDS(file.path("data", "states_sf.rds"))
+
 # move to data-raw
 # geojson_huc02 <- geojsonio::geojson_read(file.path(dn_data, "huc02.geojson")
 #                                          , what = "sp")
@@ -82,11 +83,11 @@ load(file.path(dn_data, "HUC12_centroid.rda"))
 # # mean = 1.1 seconds
 # transform to WGS84 (for use with leaflet)
 HUC12_centroid <- sf::st_transform(HUC12_centroid, 4326)
-
-# HUC12_centroid$River_Risk <- runif(18)
-# HUC12_centroid$Lake_Risk <- runif(18)
-# HUC12_centroid$River_RF <- runif(18)
-# HUC12_centroid$Lake_RF <- runif(18)
+# Dummy Data for testing only, remove in production version
+HUC12_centroid$River_Risk <- runif(18)
+HUC12_centroid$Lake_Risk <- runif(18)
+HUC12_centroid$River_RF <- runif(18)
+HUC12_centroid$Lake_RF <- runif(18)
 
 # 
 
@@ -212,9 +213,6 @@ bbox_conus <- c(-124.7844079, 49.3457868, -66.9513812, 24.7433195)
 # Bounding Box, western US (MS River)
 #                 WA = west,  MN = north, LA = east, TX = south,  
 bbox_westus <- c(-124.848974, 49.384358, -88.817017, 24.7433195)
-
-# States
-sf_states <- tigris::states(cb = TRUE, class = "sf")
 
 # ggsave options
 plot_device <- "png"

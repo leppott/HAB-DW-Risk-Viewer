@@ -72,311 +72,496 @@ function(input, output, session) {
   # https://rstudio.github.io/leaflet/shiny.html
   # need a reactive to trigger, use map update button
   observeEvent(input$but_map_update, {
-    # check user selections
+    # shiny::withProgress({
     
-    # If waterbody = River, pop up with 
-    
-    # create a new map?\
-    
-    ### change view ----
-    # updateTabItems(session, "tabs", "Map Selections")
-    updateTabsetPanel(session, "inSelections", "Map")
- 
-    ## Layer Type ----
-    # mapdatatype <- "polygon_simple" 
-    # "polygon_simple", "centroid", "polygon_rf", "centroid_rf"
-    if (input$rad_map_layertype == "points") {
-      mapdatatype <- "centroid" 
-    } else if (input$rad_map_layertype == "polygons") {
-      mapdatatype <- "polygon_simple"
-    }## IF ~ layer type
-    
-    ## Map, bbox ----
-    sel_map_zoom <- input$map_zoom
-    if (sel_map_zoom == "US") {
-      bbox_zoom <- bbox_conus
-    } else if (sel_map_zoom == "US west") {
-      bbox_zoom <- bbox_westus
-    } else {
-      df_zoom <- df_coord_states |>
-        filter(Postal_Abbreviation == sel_map_zoom)
-      bbox_zoom <- c(df_zoom$Min_Longitude,
-                     df_zoom$Max_Latitude, 
-                     df_zoom$Max_Longitude, 
-                     df_zoom$Min_Latitude)
-    }## IF ~ sel_map_zoom
-  
-    ## Data, User ----
-    sel_map_model <- input$map_model
-    
-    if(sel_map_model == "cyan") {
-      mod_varimp_user <- mod_varimp_cyan
-      rfr_ranger <- rfr_cyan_model 
-    } else if (sel_map_model == "DBP") {
-      mod_varimp_user <- mod_varimp_dbp
-      rfr_ranger <- rfr_DBP_model 
-    } else if (sel_map_model == "DWOps_Risk") {
-      mod_varimp_user <- mod_varimp_dwops
-      rfr_ranger <- rfr_DWOps_Risk_model 
-    } else if (sel_map_model == "HABDW_Risk") {
-      mod_varimp_user <- mod_varimp_habdw
-      rfr_ranger <- rfr_HABDW_Risk_model 
-    } else if (sel_map_model == "lake_Risk") {
-      mod_varimp_user <- mod_varimp_lake
-      rfr_ranger <- rfr_lake_Risk_model 
-    } else if (sel_map_model == "Treat_Risk") {
-      mod_varimp_user <- mod_varimp_treat
-      rfr_ranger <- rfr_Treat_Risk_model 
-    } else if (sel_map_model == "Viol_Risk") {
-      mod_varimp_user <- mod_varimp_viol
-      rfr_ranger <- rfr_Viol_Risk_model 
-    }## IF ~ sel_map_model
-    
-    ## Scenario - User Select----
-    mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
-    mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
-    mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
-    mod_varimp_user[4, "User_Select"] <- input$map_radio_p04
-    mod_varimp_user[5, "User_Select"] <- input$map_radio_p05
-    mod_varimp_user[6, "User_Select"] <- input$map_radio_p06
-    mod_varimp_user[7, "User_Select"] <- input$map_radio_p07
-    mod_varimp_user[8, "User_Select"] <- input$map_radio_p08
-    mod_varimp_user[9, "User_Select"] <- input$map_radio_p09
-    mod_varimp_user[10, "User_Select"] <- input$map_radio_p10
-    mod_varimp_user[11, "User_Select"] <- input$map_radio_p11
-    mod_varimp_user[12, "User_Select"] <- input$map_radio_p12
-    mod_varimp_user[13, "User_Select"] <- input$map_radio_p13
-    mod_varimp_user[14, "User_Select"] <- input$map_radio_p14
-    mod_varimp_user[15, "User_Select"] <- input$map_radio_p15
-    mod_varimp_user[16, "User_Select"] <- input$map_radio_p16
-    mod_varimp_user[17, "User_Select"] <- input$map_radio_p17
-    mod_varimp_user[18, "User_Select"] <- input$map_radio_p18
-    mod_varimp_user[19, "User_Select"] <- input$map_radio_p19
-    mod_varimp_user[20, "User_Select"] <- input$map_radio_p20
-    
-    # TEMP - create model input file
-    # variable == mod_varimp_user[1, "Variable"]
-    # user_select == mod_varimp_user[1, "User_Select"]
-    # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
-    # update values based on user selections
-    mod_scen_user <- mod_scen_mean # default
-    #
-    # 01
-    var_num <- 1
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 02
-    var_num <- 2
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 03
-    var_num <- 3
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 04
-    var_num <- 4
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 05
-    var_num <- 5
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 06
-    var_num <- 6
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 07
-    var_num <- 7
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 08
-    var_num <- 8
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 09
-    var_num <- 9
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 10
-    var_num <- 10
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 11
-    var_num <- 11
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 12
-    var_num <- 12
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 13
-    var_num <- 13
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 14
-    var_num <- 14
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 15
-    var_num <- 15
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 16
-    var_num <- 16
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 17
-    var_num <- 17
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 18
-    var_num <- 18
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 19
-    var_num <- 19
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    # 20
-    var_num <- 20
-    update_variable    <- mod_varimp_user[var_num, "Variable"]
-    update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
-    
-    # save
-    # ok to resave file
-    write.csv(mod_varimp_user, 
-              file.path("results", "model_variable_importance.csv"),
-              row.names = FALSE)
-    write.csv(mod_scen_user, 
-              file.path("results", "model_scenario_user_values.csv"),
-              row.names = FALSE)
-
-    ## Model Predict ----
-    # model == rfr_ranger (based on user selection)
-    # prediction data == mean data with user mods for top 20
-    mod_pred_data <- mod_scen_user
-    # remove NA
-    mod_pred_data_naomit <- na.omit(mod_pred_data)
-    # drop HUC12
-    mod_pred_data_naomit_rm_huc12 <- mod_pred_data_naomit
-    mod_pred_data_naomit_rm_huc12[, "HUC12"] <- NULL
-    # run model
-    pred_user <- as.data.frame(predict(rfr_ranger,
-                                       data = mod_pred_data_naomit_rm_huc12))
-    # Add HUC12
-    pred_user_results <- cbind(HUC12 = mod_pred_data_naomit[, "HUC12"],
-                               pred_user)
-    
-    ## Save ----
-    write.csv(pred_user_results,
-              file.path("results", "predictions_user.csv"),
-              row.names = FALSE)
-    
-    # MERGE results with HUC12
-
-
-    ## update leaflet ----
-    
-    if(mapdatatype == "centroid") {
-      browser
-      ### centroid ----
+      # ### 00, Initialize ----
+      # prog_detail <- "Create Map..."
+      # message(paste0("\n", prog_detail))
+      # 
+      # # Number of increments
+      # prog_n <- 9
+      # prog_sleep <- 0.25
       
-      sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
+      # check user selections
       
-      # Crop Data 
-      if (input$rad_map_crop == "Yes") {
-        # crop data to selected state
-        data_proxy <- sf::st_crop(HUC12_centroid,
-                                         sf::st_bbox(
-                                           c(xmin = bbox_zoom[1],
-                                             xmax = bbox_zoom[3],
-                                             ymin = bbox_zoom[4],
-                                             ymax = bbox_zoom[2])))
+      # If waterbody = River, pop up with 
+      
+      # create a new map?\
+      
+      ## 01, change view ----
+      # prog_detail <- "Change Tab"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      # updateTabItems(session, "tabs", "Map Selections")
+      updateTabsetPanel(session, "inSelections", "Map")
+   
+      ## 02, Layer Type ----
+      # prog_detail <- "Define Layer"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      # mapdatatype <- "polygon_simple" 
+      # "polygon_simple", "centroid", "polygon_rf", "centroid_rf"
+      if (input$rad_map_layertype == "points") {
+        mapdatatype <- "centroid" 
+      } else if (input$rad_map_layertype == "polygons") {
+        mapdatatype <- "polygon_simple"
+      }## IF ~ layer type
+      
+      ## 03, Map, bbox ----
+      # prog_detail <- "Define Zoom"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      sel_map_zoom <- input$map_zoom
+      if (sel_map_zoom == "CONUS") {
+        bbox_zoom <- bbox_conus
+      } else if (sel_map_zoom == "US west") {
+        bbox_zoom <- bbox_westus
       } else {
-        # # crop to western US
-        # data_proxy <- sf::st_crop(HUC12_centroid,
-        #                                    sf::st_bbox(
-        #                                      c(xmin = bbox_westus[1],
-        #                                        xmax = bbox_westus[3],
-        #                                        ymin = bbox_westus[4],
-        #                                        ymax = bbox_westus[2])))
-        # CONUS
-        data_proxy <- HUC12_centroid
-      }## IF ~ rad_map_crop
+        df_zoom <- df_coord_states |>
+          filter(Postal_Abbreviation == sel_map_zoom)
+        bbox_zoom <- c(df_zoom$Min_Longitude,
+                       df_zoom$Max_Latitude, 
+                       df_zoom$Max_Longitude, 
+                       df_zoom$Min_Latitude)
+      }## IF ~ sel_map_zoom
+    
+      ## 04, Data, User ----
+      # prog_detail <- "Define Data"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      sel_map_model <- input$map_model
+      
+      if(sel_map_model == "cyan") {
+        mod_varimp_user <- mod_varimp_cyan
+        rfr_ranger <- rfr_cyan_model 
+      } else if (sel_map_model == "DBP") {
+        mod_varimp_user <- mod_varimp_dbp
+        rfr_ranger <- rfr_DBP_model 
+      } else if (sel_map_model == "DWOps_Risk") {
+        mod_varimp_user <- mod_varimp_dwops
+        rfr_ranger <- rfr_DWOps_Risk_model 
+      } else if (sel_map_model == "HABDW_Risk") {
+        mod_varimp_user <- mod_varimp_habdw
+        rfr_ranger <- rfr_HABDW_Risk_model 
+      } else if (sel_map_model == "lake_Risk") {
+        mod_varimp_user <- mod_varimp_lake
+        rfr_ranger <- rfr_lake_Risk_model 
+      } else if (sel_map_model == "Treat_Risk") {
+        mod_varimp_user <- mod_varimp_treat
+        rfr_ranger <- rfr_Treat_Risk_model 
+      } else if (sel_map_model == "Viol_Risk") {
+        mod_varimp_user <- mod_varimp_viol
+        rfr_ranger <- rfr_Viol_Risk_model 
+      }## IF ~ sel_map_model
+      
+      ## 05, Scenario - User Select----
+      # prog_detail <- "Define Scenario"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
       
       
+      mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
+      mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
+      mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
+      mod_varimp_user[4, "User_Select"] <- input$map_radio_p04
+      mod_varimp_user[5, "User_Select"] <- input$map_radio_p05
+      mod_varimp_user[6, "User_Select"] <- input$map_radio_p06
+      mod_varimp_user[7, "User_Select"] <- input$map_radio_p07
+      mod_varimp_user[8, "User_Select"] <- input$map_radio_p08
+      mod_varimp_user[9, "User_Select"] <- input$map_radio_p09
+      mod_varimp_user[10, "User_Select"] <- input$map_radio_p10
+      mod_varimp_user[11, "User_Select"] <- input$map_radio_p11
+      mod_varimp_user[12, "User_Select"] <- input$map_radio_p12
+      mod_varimp_user[13, "User_Select"] <- input$map_radio_p13
+      mod_varimp_user[14, "User_Select"] <- input$map_radio_p14
+      mod_varimp_user[15, "User_Select"] <- input$map_radio_p15
+      mod_varimp_user[16, "User_Select"] <- input$map_radio_p16
+      mod_varimp_user[17, "User_Select"] <- input$map_radio_p17
+      mod_varimp_user[18, "User_Select"] <- input$map_radio_p18
+      mod_varimp_user[19, "User_Select"] <- input$map_radio_p19
+      mod_varimp_user[20, "User_Select"] <- input$map_radio_p20
+  
+      # TEMP - create model input file
+      # variable == mod_varimp_user[1, "Variable"]
+      # user_select == mod_varimp_user[1, "User_Select"]
+      # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
+      # update values based on user selections
+      mod_scen_user <- mod_scen_mean # default
+      #
+      # 01
+      var_num <- 1
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 02
+      var_num <- 2
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 03
+      var_num <- 3
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 04
+      var_num <- 4
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 05
+      var_num <- 5
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 06
+      var_num <- 6
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 07
+      var_num <- 7
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 08
+      var_num <- 8
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 09
+      var_num <- 9
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 10
+      var_num <- 10
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 11
+      var_num <- 11
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 12
+      var_num <- 12
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 13
+      var_num <- 13
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 14
+      var_num <- 14
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 15
+      var_num <- 15
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 16
+      var_num <- 16
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 17
+      var_num <- 17
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 18
+      var_num <- 18
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 19
+      var_num <- 19
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
+      # 20
+      var_num <- 20
+      update_variable    <- mod_varimp_user[var_num, "Variable"]
+      update_user_select <- mod_varimp_user[var_num, "User_Select"]
+      mod_scen_user[, update_variable] <- 
+        mod_scen_list[[update_user_select]][, update_variable]
       
-      leafletProxy("map_huc") |> #, data = data_proxy) |>
-        # add spinner
-        # addSpinner() |>
-        # clean up map before adding to it
-        clearControls() |>
-        clearShapes() |>
-        clearMarkers() |>
-        # Bounds
-        fitBounds(bbox_zoom[1], 
-                  bbox_zoom[2], 
-                  bbox_zoom[3], 
-                  bbox_zoom[4]) |>
-        # Add HUC
-        leaflet::addCircleMarkers(data = data_proxy,
-                                  lng = ~Longitude,
-                                  lat = ~Latitude,
-                                  color = "darkgray",
-                                  fillColor = colorNumeric(
-                                    palette = "viridis",
-                                    domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
-                                  group = "HUC12",
-                                  # popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-                                  #                 "Name: ", HU_12_NAME, as.character("<br>"),
-                                  #                 # "Model: ", input$map_results, as.character("<br>"),
-                                  #                 # "Waterbody: ", input$map_water, as.character("<br>"),
-                                  #                 "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                  #                 "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                  #                 "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                  #                 "Results, Lake RF:", round(Lake_RF, 1)
-                                  # )
-                                  ) |>
+      # save
+      # ok to resave file
+      write.csv(mod_varimp_user, 
+                file.path("results", "model_variable_importance.csv"),
+                row.names = FALSE)
+      write.csv(mod_scen_user, 
+                file.path("results", "model_scenario_user_values.csv"),
+                row.names = FALSE)
+  
+      ## 06, Model Predict ----
+      # prog_detail <- "Model Predict"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      # model == rfr_ranger (based on user selection)
+      # prediction data == mean data with user mods for top 20
+      mod_pred_data <- mod_scen_user
+      # remove NA
+      mod_pred_data_naomit <- na.omit(mod_pred_data)
+      # drop HUC12
+      mod_pred_data_naomit_rm_huc12 <- mod_pred_data_naomit
+      mod_pred_data_naomit_rm_huc12[, "HUC12"] <- NULL
+      # run model
+      pred_user <- as.data.frame(predict(rfr_ranger,
+                                         data = mod_pred_data_naomit_rm_huc12))
+      # Add HUC12
+      pred_user_results <- cbind(HUC12 = mod_pred_data_naomit[, "HUC12"],
+                                 pred_user)
+      
+      ## 07, Save ----
+      # prog_detail <- "Save Predictions"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      write.csv(pred_user_results,
+                file.path("results", "predictions_user.csv"),
+                row.names = FALSE)
+      
+      # MERGE results with HUC12
+  
+  
+      ## 08, update leaflet ----
+      # prog_detail <- "Update Map"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
+      
+      
+      if(mapdatatype == "centroid") {
+  
+        ### centroid ----
+        
+        sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
+        
+        # Crop Data
+        if (input$rad_map_crop == "Yes" & sel_map_zoom != "CONUS") {
+           # crop data to selected state
+          # data_proxy <- sf::st_crop(HUC12_centroid,
+          #                                  sf::st_bbox(
+          #                                    c(xmin = bbox_zoom[1],
+          #                                      xmax = bbox_zoom[3],
+          #                                      ymin = bbox_zoom[4],
+          #                                      ymax = bbox_zoom[2])))
+          # intersect to selected state
+          sf_states_zoom <- sf_states |>
+            filter(STUSPS == sel_map_zoom)
+          data_proxy <- HUC12_centroid |>
+            sf::st_intersection(sf_states_zoom)
+        } else {
+          # # crop to western US
+          # data_proxy <- sf::st_crop(HUC12_centroid,
+          #                                    sf::st_bbox(
+          #                                      c(xmin = bbox_westus[1],
+          #                                        xmax = bbox_westus[3],
+          #                                        ymin = bbox_westus[4],
+          #                                        ymax = bbox_westus[2])))
+          # CONUS
+          data_proxy <- HUC12_centroid
+        }## IF ~ rad_map_crop
+        
+      
+        leafletProxy("map_huc") |> #, data = data_proxy) |>
+          # add spinner
+          # addSpinner() |>
+          # clean up map before adding to it
+          clearControls() |>
+          clearShapes() |>
+          clearMarkers() |>
+          # Bounds
+          fitBounds(bbox_zoom[1], 
+                    bbox_zoom[2], 
+                    bbox_zoom[3], 
+                    bbox_zoom[4]) |>
+          # Add HUC
+          leaflet::addCircleMarkers(data = data_proxy,
+                                    lng = ~Longitude,
+                                    lat = ~Latitude,
+                                    color = "darkgray",
+                                    fillColor = colorNumeric(
+                                      palette = "viridis",
+                                      domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
+                                    group = "HUC12",
+                                    # popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                    #                 "Name: ", HU_12_NAME, as.character("<br>"),
+                                    #                 # "Model: ", input$map_results, as.character("<br>"),
+                                    #                 # "Waterbody: ", input$map_water, as.character("<br>"),
+                                    #                 "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                    #                 "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                    #                 "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                    #                 "Results, Lake RF:", round(Lake_RF, 1)
+                                    # )
+                                    ) |>
+            # States
+            addPolygons(data = sf_states,
+                        fillColor = NULL,
+                        color = "black",
+                        weight = 1.5,
+                        opacity = 1,
+                        fillOpacity = 0,
+                        group = "States") |>
+            # Layers, Control
+            addLayersControl(baseGroups = c("Positron",
+                                            "Open Street Map",
+                                            "ESRI World Imagery"),
+                             overlayGroups = c("HUC12", "States"))
+          
+        # Spinner, Stop
+        # stopSpinner()
+        # Layers, Hide
+        #hideGroup("HUC12") # if hide by default not sure when loaded
+        # Zoom in 
+        # setView(zoom = 7) # needs lat long
+        
+        
+      } else if (mapdatatype == "centroid_rf") {
+        ### centroid_rf ----
+        leafletProxy("map_huc", data = HUC12_centroid_rf) |>
+          # add spinner
+          # addSpinner() |>
+          # clean up map before adding to it
+          clearControls() |>
+          clearShapes() |>
+          clearMarkers() |>
+          # Add HUC
+          leaflet::addCircleMarkers(lng = ~Longitude,
+                                    lat = ~Latitude,
+                                    color = "darkgray",
+                                    fillColor = colorNumeric(
+                                      palette = "viridis",
+                                      domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
+                                    group = "HUC12",
+                                    popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                                    "Name: ", HU_12_NAME, as.character("<br>"),
+                                                    "Model: ", input$map_results, as.character("<br>"),
+                                                    "Waterbody: ", input$map_water, as.character("<br>"),
+                                                    "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                                    "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                                    "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                                    "Results, Lake RF:", round(Lake_RF, 1)
+                                    )) |>
+          # Layers, Control
+          addLayersControl(baseGroups = c("Positron",
+                                          "Open Street Map",
+                                          "ESRI World Imagery"),
+                           overlayGroups = "HUC12") |>
+          # Bounds
+          fitBounds(bbox_zoom[1], 
+                    bbox_zoom[2], 
+                    bbox_zoom[3], 
+                    bbox_zoom[4])
+        # Spinner, Stop
+        # stopSpinner()
+        # Layers, Hide
+        #hideGroup("HUC12") # if hide by default not sure when loaded
+        # Zoom in 
+        # setView(zoom = 7) # needs lat long
+        
+        
+      } else if (mapdatatype == "polygon_simple") {
+        ### polygon_simple ----
+  
+        sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
+        
+        # ** ALWAYS ** Crop polygon data
+        # Crop Data 
+        if (sel_map_zoom != "CONUS") {
+        # crop data to selected state
+        # data_proxy <- sf::st_crop(HUC12_simple,
+        #                                  sf::st_bbox(
+        #                                    c(xmin = bbox_zoom[1],
+        #                                      xmax = bbox_zoom[3],
+        #                                      ymin = bbox_zoom[4],
+        #                                      ymax = bbox_zoom[2])))
+        # intersect to selected state
+          sf_states_zoom <- sf_states |>
+            filter(STUSPS == sel_map_zoom)
+          data_proxy <- HUC12_simple |>
+            sf::st_intersection(sf_states_zoom)
+        } else {
+          # CONUS
+          data_proxy <- HUC12_simple
+        }## IF ~ sel_map_zoom
+        
+        leaflet::leafletProxy("map_huc") |> # , data = HUC12_simple) |>
+          # clean up map before adding to it
+          clearControls() |>
+          clearShapes() |>
+          clearMarkers() |>
+          # Add HUC
+           leaflet::addPolygons(data = data_proxy,
+                                group = "HUC12",
+                                popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
+                                                "Name: ", HU_12_NAME, as.character("<br>"),
+                                                "Model: ", input$map_results, as.character("<br>"),
+                                                "Waterbody: ", input$map_water, as.character("<br>"),
+                                                "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                                "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                                "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                                "Results, Lake RF:", round(Lake_RF, 1)
+                                                ),
+                                 weight = 1,
+                                 color = "darkgray",
+                                 # fillColor = "skyblue",
+                                 # fillColor = ~sel_user_pal(),
+                                fillColor = colorNumeric(
+                                  palette = "viridis",
+                                  domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
+                                # smoothFactor = 0,
+                                highlightOptions = highlightOptions(bringToFront = TRUE,
+                                                                    color = "darkgreen",
+                                                                    fillColor = "green",
+                                                                    weight = 3)
+                                ) |>
+          # States
           addPolygons(data = sf_states,
                       fillColor = NULL,
                       color = "black",
@@ -388,190 +573,85 @@ function(input, output, session) {
           addLayersControl(baseGroups = c("Positron",
                                           "Open Street Map",
                                           "ESRI World Imagery"),
-                           overlayGroups = c("HUC12", "States"))
+                           overlayGroups = "HUC12", "States") |>
+        #   # Bounds
+          fitBounds(bbox_zoom[1],
+                    bbox_zoom[2],
+                    bbox_zoom[3],
+                    bbox_zoom[4])
+  #       # # Layers, Hide
+  #       # #hideGroup("HUC12") # if hide by default not sure when loaded
+  #       # # Zoom in 
+  #       # # setView(zoom = 7) # needs lat long
         
-      # Spinner, Stop
-      # stopSpinner()
-      # Layers, Hide
-      #hideGroup("HUC12") # if hide by default not sure when loaded
-      # Zoom in 
-      # setView(zoom = 7) # needs lat long
-      
-      
-    } else if (mapdatatype == "centroid_rf") {
-      ### centroid_rf ----
-      leafletProxy("map_huc", data = HUC12_centroid_rf) |>
-        # add spinner
-        # addSpinner() |>
-        # clean up map before adding to it
-        clearControls() |>
-        clearShapes() |>
-        clearMarkers() |>
-        # Add HUC
-        leaflet::addCircleMarkers(lng = ~Longitude,
-                                  lat = ~Latitude,
-                                  color = "darkgray",
-                                  fillColor = colorNumeric(
-                                    palette = "viridis",
-                                    domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
-                                  group = "HUC12",
-                                  popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-                                                  "Name: ", HU_12_NAME, as.character("<br>"),
-                                                  "Model: ", input$map_results, as.character("<br>"),
-                                                  "Waterbody: ", input$map_water, as.character("<br>"),
-                                                  "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                                  "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                                  "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                                  "Results, Lake RF:", round(Lake_RF, 1)
-                                  )) |>
-        # Layers, Control
-        addLayersControl(baseGroups = c("Positron",
-                                        "Open Street Map",
-                                        "ESRI World Imagery"),
-                         overlayGroups = "HUC12") |>
-        # Bounds
-        fitBounds(bbox_zoom[1], 
-                  bbox_zoom[2], 
-                  bbox_zoom[3], 
-                  bbox_zoom[4])
-      # Spinner, Stop
-      # stopSpinner()
-      # Layers, Hide
-      #hideGroup("HUC12") # if hide by default not sure when loaded
-      # Zoom in 
-      # setView(zoom = 7) # needs lat long
-      
-      
-    } else if (mapdatatype == "polygon_simple") {
-      ### polygon_simple ----
-
-      sf::sf_use_s2(FALSE) # get error this isn't best but gets around error
-      
-      # Crop Data 
-      if (input$rad_map_crop == "Yes") {
-        # crop data to selected state
-        data_proxy <- sf::st_crop(HUC12_simple,
-                                         sf::st_bbox(
-                                           c(xmin = bbox_zoom[1],
-                                             xmax = bbox_zoom[3],
-                                             ymin = bbox_zoom[4],
-                                             ymax = bbox_zoom[2])))
-      } else {
-        # crop to western US
-        # data_proxy <- sf::st_crop(HUC12_simple,
-        #                                  sf::st_bbox(
-        #                                    c(xmin = bbox_westus[1],
-        #                                      xmax = bbox_westus[3],
-        #                                      ymin = bbox_westus[4],
-        #                                      ymax = bbox_westus[2])))
-        # CONUS
-        data_proxy <- HUC12_simple
-      }## IF ~ rad_map_crop
-      
-      leaflet::leafletProxy("map_huc") |> # , data = HUC12_simple) |>
-        # clean up map before adding to it
-        clearControls() |>
-        clearShapes() |>
-        clearMarkers() |>
-        # Add HUC
-         leaflet::addPolygons(data = data_proxy,
-                              group = "HUC12",
-                              popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
-                                              "Name: ", HU_12_NAME, as.character("<br>"),
-                                              "Model: ", input$map_results, as.character("<br>"),
-                                              "Waterbody: ", input$map_water, as.character("<br>"),
-                                              "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                              "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                              "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                              "Results, Lake RF:", round(Lake_RF, 1)
-                                              ),
+      } else if (mapdatatype == "polygon_rf") {
+        ### polygon_rf ----
+        leafletProxy("map_huc", data = HUC12_rf) |>
+          # add spinner
+          # addSpinner() |>
+          # clean up map before adding to it
+          clearControls() |>
+          clearShapes() |>
+          clearMarkers() |>
+          # Add HUC
+          leaflet::addPolygons(data = HUC12_simple,
+                               group = "HUC12",
+                               popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
+                                               "Name: ", name, as.character("<br>"),
+                                               "Scenario: ", input$map_water_model, as.character("<br>"),
+                                               # "Model: ", input$map_results, as.character("<br>"),
+                                               # "Waterbody: ", input$map_water, as.character("<br>"),
+                                               # "Endpoint: ", input$map_endpoint, as.character("<br>"),
+                                               "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
+                                               "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
+                                               "Results, River RF:", round(River_RF, 1), as.character("<br>"),
+                                               "Results, Lake RF:", round(Lake_RF, 1)
+                               ),
                                weight = 1,
                                color = "darkgray",
                                # fillColor = "skyblue",
                                # fillColor = ~sel_user_pal(),
-                              fillColor = colorNumeric(
-                                palette = "viridis",
-                                domain = data_proxy$"River_Risk")(data_proxy$"River_Risk"),
-                              # smoothFactor = 0,
-                              highlightOptions = highlightOptions(bringToFront = TRUE,
-                                                                  color = "darkgreen",
-                                                                  fillColor = "green",
-                                                                  weight = 3)
-                              ) |>
-#       #   # Layers, Control
-#       #   addLayersControl(baseGroups = c("Positron",
-#       #                                   "Open Street Map",
-#       #                                   "ESRI World Imagery"),
-#       #                    overlayGroups = "HUC12") |>
-      #   # Bounds
-        fitBounds(bbox_zoom[1],
-                  bbox_zoom[2],
-                  bbox_zoom[3],
-                  bbox_zoom[4])
-#       # # Layers, Hide
-#       # #hideGroup("HUC12") # if hide by default not sure when loaded
-#       # # Zoom in 
-#       # # setView(zoom = 7) # needs lat long
+                               fillColor = colorNumeric(
+                                 palette = "viridis",
+                                 domain = HUC12_rf$"River_Risk")(HUC12_rf$"River_Risk"),
+                               smoothFactor = 0,
+                               highlightOptions = highlightOptions(bringToFront = TRUE,
+                                                                   color = "darkgreen",
+                                                                   fillColor = "green",
+                                                                   weight = 3)) |>
+          # Layers, Control
+          addLayersControl(baseGroups = c("Positron",
+                                          "Open Street Map",
+                                          "ESRI World Imagery"),
+                           overlayGroups = "HUC12") |>
+          # Bounds
+          fitBounds(bbox_zoom[1], 
+                    bbox_zoom[2], 
+                    bbox_zoom[3], 
+                    bbox_zoom[4])
+        # Spinner, Stop
+        # stopSpinner()
+        # Layers, Hide
+        #hideGroup("HUC12") # if hide by default not sure when loaded
+        # Zoom in 
+        # setView(zoom = 7) # needs lat long
+        
+      }## IF ~ maptype
       
-    } else if (mapdatatype == "polygon_rf") {
-      ### polygon_rf ----
-      leafletProxy("map_huc", data = HUC12_rf) |>
-        # add spinner
-        # addSpinner() |>
-        # clean up map before adding to it
-        clearControls() |>
-        clearShapes() |>
-        clearMarkers() |>
-        # Add HUC
-        leaflet::addPolygons(data = HUC12_simple,
-                             group = "HUC12",
-                             popup = ~paste0("HUC12: ", huc12, as.character("<br>"),
-                                             "Name: ", name, as.character("<br>"),
-                                             "Scenario: ", input$map_water_model, as.character("<br>"),
-                                             # "Model: ", input$map_results, as.character("<br>"),
-                                             # "Waterbody: ", input$map_water, as.character("<br>"),
-                                             # "Endpoint: ", input$map_endpoint, as.character("<br>"),
-                                             "Results, River Risk:", round(River_Risk, 1), as.character("<br>"),
-                                             "Results, Lake Risk:", round(Lake_Risk, 1), as.character("<br>"),
-                                             "Results, River RF:", round(River_RF, 1), as.character("<br>"),
-                                             "Results, Lake RF:", round(Lake_RF, 1)
-                             ),
-                             weight = 1,
-                             color = "darkgray",
-                             # fillColor = "skyblue",
-                             # fillColor = ~sel_user_pal(),
-                             fillColor = colorNumeric(
-                               palette = "viridis",
-                               domain = HUC12_rf$"River_Risk")(HUC12_rf$"River_Risk"),
-                             smoothFactor = 0,
-                             highlightOptions = highlightOptions(bringToFront = TRUE,
-                                                                 color = "darkgreen",
-                                                                 fillColor = "green",
-                                                                 weight = 3)) |>
-        # Layers, Control
-        addLayersControl(baseGroups = c("Positron",
-                                        "Open Street Map",
-                                        "ESRI World Imagery"),
-                         overlayGroups = "HUC12") |>
-        # Bounds
-        fitBounds(bbox_zoom[1], 
-                  bbox_zoom[2], 
-                  bbox_zoom[3], 
-                  bbox_zoom[4])
-      # Spinner, Stop
-      # stopSpinner()
-      # Layers, Hide
-      #hideGroup("HUC12") # if hide by default not sure when loaded
-      # Zoom in 
-      # setView(zoom = 7) # needs lat long
+      ## 09, update summary  ----
+      # prog_detail <- "Update Summary"
+      # message(paste0("\n", prog_detail))
+      # # Increment the progress bar, and update the detail text.
+      # incProgress(1/prog_n, detail = prog_detail)
+      # Sys.sleep(prog_sleep)
       
-    }
-    
-  
-    
+      # need merged data to create plots
+      
+      
+    # })## withProgress
   })## observer ~ but_map_update
   
-  ## Summary Stats, State ----
+  ## Summary, State ----
   # CDF, Bar charts, box plots, etc. 
   
   ### CDF ----

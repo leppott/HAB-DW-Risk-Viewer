@@ -21,6 +21,13 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.1.0.9009 (2025-08-13)
+
+* refactor: Move states boundary file to RDS
+* refactor: Create data-raw file to create states boundary
+* refactor: Move 'map' tab to front so activates and always works
+* refactor: Crop to state boundaries not bounding box
+
 # HAB-DW-Risk-Viewer 0.1.0.9008 (2025-08-11)
 
 * feature: Add summary plots and tables

@@ -39,10 +39,10 @@ shinyUI(
 
     ## MAIN
     dashboardPage(
-      header = dashboardHeader(title = "HAB DW Risk Viewer"),
+      header  = dashboardHeader(title = "HAB DW Risk Viewer"),
       sidebar = dashboardSidebar(db_main_sb("leftsdiebarmenu")),
-      body = dashboardBody(db_main_body("dbBody")) ,
-      footer = dashboardFooter(
+      body    = dashboardBody(db_main_body("dbBody")) ,
+      footer  = dashboardFooter(
         # left = pkg_version ,
         # right = "https:://github.com/leppott/HAB-DW-Risk-Viewer"
         )

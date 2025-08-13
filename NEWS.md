@@ -1,11 +1,18 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-11 16:51:21.059795
+2025-08-13 11:30:39.997765
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-11 16:51:21.094001
+    #> Last Update: 2025-08-13 11:30:40.018861
+
+# HAB-DW-Risk-Viewer 0.1.0.9009 (2025-08-13)
+
+- refactor: Move states boundary file to RDS
+- refactor: Create data-raw file to create states boundary
+- refactor: Move ‘map’ tab to front so activates and always works
+- refactor: Crop to state boundaries not bounding box
 
 # HAB-DW-Risk-Viewer 0.1.0.9008 (2025-08-11)
 

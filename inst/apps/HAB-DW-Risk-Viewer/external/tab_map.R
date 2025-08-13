@@ -3,16 +3,21 @@
 function() {
         tabsetPanel(type = "tabs",
                   id = "inSelections",
+                  tabPanel(title = "Map",
+                           # Map ----
+                           p(em("Map based on user selections after clicking 'Update Map'.")),
+                           withSpinner(leafletOutput("map_huc",
+                                                     height = "85vh"))
+                  ), ## tabPanel ~ Map
                   tabPanel(title = "Selections",
                            # Selections ----
                            h3("Update Map"),
-                           p(paste0("After making changes below click the button here to update the map. ",
-                                    "Adding the HUC12 layers takes about 1 minute.")),
+                           p(paste0("After making changes below click the button here to update the 'Map' and 'Summary' tabs. ",
+                                    "Adding the HUC12 layer takes about 1 minute.")),
                            bsButton("but_map_update", "Update Map"),
                            shinyBS::bsTooltip(id = "but_map_update",
                                               title = paste0("Clicking this button will",
-                                                             " generate a map with the user",
-                                                             " selections on this page."),
+                                                             " update the 'Map' and 'Summary' tabs."),
                                               placement = "right"),
                            # hr(),
                            h3("1. Scale"),
@@ -21,10 +26,9 @@ function() {
                                                     "Select 'CONUS' to see the entire dataset or select a state to zoom in and get detailed summary.")),
                                            selectInput("map_zoom",
                                                        "State:",
-                                                       choices = c("", 
-                                                                   "CONUS",
+                                                       choices = c("CONUS",
                                                                    df_coord_states[, "Postal_Abbreviation"]),
-                                                       selected = "")
+                                                       selected = "CONUS")
                                            ),
                                     column(2,
                                            shinyjs::hidden(radioButtons("rad_map_layertype",
@@ -32,13 +36,13 @@ function() {
                                                         choices = c("points", "polygons"),
                                                         selected = "points"))
                                            # p("'polygons' option takes 30-60 seconds to render map.")
-                                           ) #,
-                                    # column(3, 
-                                    #        radioButtons("rad_map_crop",
-                                    #                     "Crop data to selected state?",
-                                    #                     choices = c("Yes", "No"),
-                                    #                     selected = "Yes")
-                                    #        )
+                                           ) ,
+                                    column(3,
+                                           radioButtons("rad_map_crop",
+                                                        "Crop data to selected state?",
+                                                        choices = c("Yes", "No"),
+                                                        selected = "Yes")
+                                           )
                                     ),
                            # hr(),
                            h3("2. Model Choice"),
@@ -214,12 +218,6 @@ function() {
                    
                    tableOutput("table_summ")
                    
-                   ), ## tabPanel ~ Summary
-          tabPanel(title = "Map",
-                   # Map ----
-                   p(em("Map based on user selections after clicking 'Update Map'.")),
-                   withSpinner(leafletOutput("map_huc",
-                                             height = "85vh"))
-          ) ## tabPanel ~ Map
+                   ) ## tabPanel ~ Summary
       )## tabsetPanel ~ END
 }##FUNCTION ~ END

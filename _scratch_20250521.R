@@ -167,7 +167,14 @@ leaflet::leaflet() |>
   fitBounds(bbox_westus[1], 
             bbox_westus[2], 
             bbox_westus[3], 
-            bbox_westus[4]) #|>
+            bbox_westus[4]) |>
+  addPolygons(data = sf_states,
+              fillColor = NULL,
+              color = "black",
+              weight = 1.5,
+              opacity = 1,
+              fillOpacity = 0,
+              group = "States")
   # leaflet::addCircleMarkers(data = HUC12_centroid,
   #                           lng = ~Longitude,
   #                           lat = ~Latitude,
