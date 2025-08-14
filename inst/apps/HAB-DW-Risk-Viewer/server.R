@@ -74,7 +74,7 @@ function(input, output, session) {
   observeEvent(input$but_map_update, {
     # shiny::withProgress({
     
-      # ### 00, Initialize ----
+       ### 00, Initialize ----
       # prog_detail <- "Create Map..."
       # message(paste0("\n", prog_detail))
       # 
@@ -83,6 +83,7 @@ function(input, output, session) {
       # prog_sleep <- 0.25
       
       # check user selections
+      sel_map_water <- input$map_water
       
       # If waterbody = River, pop up with 
       
@@ -474,8 +475,8 @@ function(input, output, session) {
                                     group = "HUC12",
                                     popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
                                                     "Name: ", HU_12_NAME, as.character("<br>"),
-                                                    # "Model: ", input$map_results, as.character("<br>"),
-                                                    # "Waterbody: ", input$map_water, as.character("<br>"),
+                                                    "Waterbody: ", sel_map_water, as.character("<br>"),
+                                                    "Model: ", sel_map_model, as.character("<br>"),
                                                     "Prediction:", round(prediction, 1)
                                                     )## paste0 ~ popup
                                     ) |>
@@ -592,8 +593,8 @@ function(input, output, session) {
                                 group = "HUC12",
                                 popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
                                                 "Name: ", HU_12_NAME, as.character("<br>"),
-                                                # "Model: ", input$map_results, as.character("<br>"),
-                                                # "Waterbody: ", input$map_water, as.character("<br>"),
+                                                "Waterbody: ", sel_map_water, as.character("<br>"),
+                                                "Model: ", sel_map_model, as.character("<br>"),
                                                 "Prediction:", round(prediction, 1)
                                                 ),
                                  weight = 1,

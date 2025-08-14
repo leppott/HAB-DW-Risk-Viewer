@@ -1,11 +1,16 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-14 15:49:41.719091
+2025-08-14 16:00:52.257029
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-14 15:49:41.777438
+    #> Last Update: 2025-08-14 16:00:52.286664
+
+# HAB-DW-Risk-Viewer 0.1.0.9011 (2025-08-14)
+
+- refactor: Update HUC layer pop up
+  - Add waterbody and model
 
 # HAB-DW-Risk-Viewer 0.1.0.9010 (2025-08-14)
 
