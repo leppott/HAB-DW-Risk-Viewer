@@ -1,7 +1,7 @@
 # Shiny Global File
 
 # Version ----
-pkg_version <- "0.1.0.9008"
+pkg_version <- "0.1.0.9009"
 
 # Packages ----
 library(shiny)
@@ -84,10 +84,10 @@ load(file.path(dn_data, "HUC12_centroid.rda"))
 # transform to WGS84 (for use with leaflet)
 HUC12_centroid <- sf::st_transform(HUC12_centroid, 4326)
 # Dummy Data for testing only, remove in production version
-HUC12_centroid$River_Risk <- runif(18)
-HUC12_centroid$Lake_Risk <- runif(18)
-HUC12_centroid$River_RF <- runif(18)
-HUC12_centroid$Lake_RF <- runif(18)
+# HUC12_centroid$River_Risk <- runif(18)
+# HUC12_centroid$Lake_Risk <- runif(18)
+# HUC12_centroid$River_RF <- runif(18)
+# HUC12_centroid$Lake_RF <- runif(18)
 
 # 
 
@@ -102,10 +102,10 @@ HUC12_centroid$Lake_RF <- runif(18)
 # HUC02_simple2$Lake_Risk <- runif(18)
 # HUC02_simple2$River_RF <- runif(18)
 # HUC02_simple2$Lake_RF <- runif(18)
-HUC12_simple$River_Risk <- runif(18)
-HUC12_simple$Lake_Risk <- runif(18)
-HUC12_simple$River_RF <- runif(18)
-HUC12_simple$Lake_RF <- runif(18)
+# HUC12_simple$River_Risk <- runif(18)
+# HUC12_simple$Lake_Risk <- runif(18)
+# HUC12_simple$River_RF <- runif(18)
+# HUC12_simple$Lake_RF <- runif(18)
 
 
 # load(file.path(dn_data, "HUC12_centroid_rf.rda"))
@@ -173,35 +173,35 @@ pal_change_PuGn <- c("#af8dc3", "#7fbf7b") # purple_green
 map_numclass <- 5
 map_classint <- "pretty" # pretty picks its own number of breaks
 map_pal <- "PuOr"
-map_ci_val_river_risk <- classInt::classIntervals(HUC12_simple$River_Risk,
-                                                  n = map_numclass,
-                                                  style = map_classint)
-map_ci_val_lake_risk <- classInt::classIntervals(HUC12_simple$Lake_Risk,
-                                                  n = map_numclass,
-                                                  style = map_classint)
-map_ci_val_river_rf <- classInt::classIntervals(HUC12_simple$River_RF,
-                                                  n = map_numclass,
-                                                  style = map_classint)
-map_ci_val_lake_rf <- classInt::classIntervals(HUC12_simple$Lake_RF,
-                                                 n = map_numclass,
-                                                 style = map_classint)
+# map_ci_val_river_risk <- classInt::classIntervals(HUC12_simple$River_Risk,
+#                                                   n = map_numclass,
+#                                                   style = map_classint)
+# map_ci_val_lake_risk <- classInt::classIntervals(HUC12_simple$Lake_Risk,
+#                                                   n = map_numclass,
+#                                                   style = map_classint)
+# map_ci_val_river_rf <- classInt::classIntervals(HUC12_simple$River_RF,
+#                                                   n = map_numclass,
+#                                                   style = map_classint)
+# map_ci_val_lake_rf <- classInt::classIntervals(HUC12_simple$Lake_RF,
+#                                                  n = map_numclass,
+#                                                  style = map_classint)
 # if(map_classint == "pretty") {
 #   
 #   
 # }## IF ~ pretty
 
-map_pal_col_river_risk <- RColorBrewer::brewer.pal(
-  n = length(map_ci_val_river_risk$brks),
-  name = map_pal)
-map_pal_col_lake_risk <- RColorBrewer::brewer.pal(
-  n = length(map_ci_val_lake_risk$brks),
-  name = map_pal)
-map_pal_col_river_rf <- RColorBrewer::brewer.pal(
-  n = length(map_ci_val_river_rf$brks),
-  name = map_pal)
-map_pal_col_lake_rf <- RColorBrewer::brewer.pal(
-  n = length(map_ci_val_lake_rf$brks),
-  name = map_pal)
+# map_pal_col_river_risk <- RColorBrewer::brewer.pal(
+#   n = length(map_ci_val_river_risk$brks),
+#   name = map_pal)
+# map_pal_col_lake_risk <- RColorBrewer::brewer.pal(
+#   n = length(map_ci_val_lake_risk$brks),
+#   name = map_pal)
+# map_pal_col_river_rf <- RColorBrewer::brewer.pal(
+#   n = length(map_ci_val_river_rf$brks),
+#   name = map_pal)
+# map_pal_col_lake_rf <- RColorBrewer::brewer.pal(
+#   n = length(map_ci_val_lake_rf$brks),
+#   name = map_pal)
 
 # Map ----
 # State Coordinates

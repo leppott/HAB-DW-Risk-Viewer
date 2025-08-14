@@ -205,15 +205,14 @@ function() {
                    ),
           tabPanel(title = "Summary",
                    # Summary ----
-                   p(em("Summary information based on user selections after clicking 'Update Map'.")),
+                   p(em("Summary information based on user selections *after* clicking 'Update Map'.")),
                    hr(),
                    fluidRow(
                      column(5,
-                            plotOutput("plot_summ_cdf")),
+                            imageOutput("plot_summ_cdf")),
                      column(1),
                      column(5,
-                            plotOutput("plot_summ_box"),
-                            plotOutput("plot_summ_box_singlevar"))
+                            imageOutput("plot_summ_box_singlevar"))
                    ),
                    
                    tableOutput("table_summ")
