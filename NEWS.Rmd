@@ -21,6 +21,12 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.1.0.9010 (2025-08-14)
+
+* refactor: Updates maps
+    + Move HUCS (points and polygons) to top to allow mouseover
+    + Add control groups
+
 # HAB-DW-Risk-Viewer 0.1.0.9009 (2025-08-14)
 
 * refactor: Updates to Summary tab

@@ -455,11 +455,14 @@ function(input, output, session) {
           clearControls() |>
           clearShapes() |>
           clearMarkers() |>
-          # Bounds
-          fitBounds(bbox_zoom[1], 
-                    bbox_zoom[2], 
-                    bbox_zoom[3], 
-                    bbox_zoom[4]) |>
+          # States
+          addPolygons(data = sf_states,
+                      fillColor = NULL,
+                      color = "black",
+                      weight = 1.5,
+                      opacity = 1,
+                      fillOpacity = 0,
+                      group = "States") |>
           # Add HUC
           leaflet::addCircleMarkers(data = data_proxy,
                                     lng = ~Longitude,
@@ -476,19 +479,16 @@ function(input, output, session) {
                                                     "Prediction:", round(prediction, 1)
                                                     )## paste0 ~ popup
                                     ) |>
-            # States
-            addPolygons(data = sf_states,
-                        fillColor = NULL,
-                        color = "black",
-                        weight = 1.5,
-                        opacity = 1,
-                        fillOpacity = 0,
-                        group = "States") #|>
-            # Layers, Control
-            # addLayersControl(baseGroups = c("Positron",
-            #                                 "Open Street Map",
-            #                                 "ESRI World Imagery"),
-            #                  overlayGroups = c("HUC12", "States"))
+          # # Layers, Control
+          addLayersControl(baseGroups = c("Positron",
+                                          "Open Street Map",
+                                          "ESRI World Imagery"),
+                           overlayGroups = c("HUC12", "States")) |>
+          # # Bounds
+          fitBounds(bbox_zoom[1],
+                    bbox_zoom[2],
+                    bbox_zoom[3],
+                    bbox_zoom[4]) # |>
           
         # Spinner, Stop
         # stopSpinner()
@@ -579,6 +579,14 @@ function(input, output, session) {
           clearControls() |>
           clearShapes() |>
           clearMarkers() |>
+          # States
+          addPolygons(data = sf_states,
+                      fillColor = NULL,
+                      color = "black",
+                      weight = 1.5,
+                      opacity = 1,
+                      fillOpacity = 0,
+                      group = "States") |>
           # Add HUC
            leaflet::addPolygons(data = data_proxy,
                                 group = "HUC12",
@@ -601,20 +609,12 @@ function(input, output, session) {
                                                                     fillColor = "green",
                                                                     weight = 3)
                                 ) |>
-          # States
-          addPolygons(data = sf_states,
-                      fillColor = NULL,
-                      color = "black",
-                      weight = 1.5,
-                      opacity = 1,
-                      fillOpacity = 0,
-                      group = "States") |>
-        #   # Layers, Control
-          # addLayersControl(baseGroups = c("Positron",
-          #                                 "Open Street Map",
-          #                                 "ESRI World Imagery"),
-          #                  overlayGroups = "HUC12", "States") |>
-        # #   # Bounds
+          # Layers, Control
+          addLayersControl(baseGroups = c("Positron",
+                                          "Open Street Map",
+                                          "ESRI World Imagery"),
+                           overlayGroups = c("HUC12", "States")) |>
+          # Bounds
           fitBounds(bbox_zoom[1],
                     bbox_zoom[2],
                     bbox_zoom[3],
