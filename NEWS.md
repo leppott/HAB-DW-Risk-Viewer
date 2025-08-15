@@ -1,11 +1,20 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-15 13:05:16.172695
+2025-08-15 14:51:46.768034
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-15 13:05:16.206695
+    #> Last Update: 2025-08-15 14:51:46.816458
+
+# HAB-DW-Risk-Viewer 0.2.0.9001 (2025-08-15)
+
+- refactor: Modify map
+  - Remove color outline for points
+  - Filter points and polygons to remove those with NA values
+- refactor: Update summary tab
+  - Ensure table shows up
+  - Add text above each element to describe the element
 
 # HAB-DW-Risk-Viewer 0.2 (2025-08-15)
 

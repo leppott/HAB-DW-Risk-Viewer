@@ -21,6 +21,15 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.2.0.9001 (2025-08-15)
+
+* refactor: Modify map
+    + Remove color outline for points
+    + Filter points and polygons to remove those with NA values
+* refactor: Update summary tab
+    + Ensure table shows up
+    + Add text above each element to describe the element
+
 # HAB-DW-Risk-Viewer 0.2 (2025-08-15)
 
 * refactor: Bump version number for deliverable

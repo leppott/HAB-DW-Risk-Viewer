@@ -195,8 +195,8 @@ function() {
                             plotOutput("plot_model_varimp"),
                             tableOutput("table_model_varimp")
                             ),
-                     column(1),
-                     column(5,
+                     column(2),
+                     column(4,
                             h4("Model Performance"),
                             plotOutput("plot_model_perf"),
                             tableOutput("table_model_perf")
@@ -209,12 +209,18 @@ function() {
                    hr(),
                    fluidRow(
                      column(5,
+                            p("CDF for selected area of interest."),
                             imageOutput("plot_summ_cdf")),
-                     column(1),
+                     column(2),
                      column(5,
+                            p("Boxplot for selected area of interest."),
                             imageOutput("plot_summ_box_singlevar"))
                    ),
-                   
+                   br(),
+                   br(),
+                   br(),
+                   br(),
+                   p("Summary statistics for selected area of interest."),
                    tableOutput("table_summ")
                    
                    ) ## tabPanel ~ Summary

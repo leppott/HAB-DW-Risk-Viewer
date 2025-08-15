@@ -435,7 +435,8 @@ function(input, output, session) {
           sf_states_zoom <- sf_states |>
             filter(STUSPS == sel_map_zoom)
           data_proxy <- data_proxy |>
-            sf::st_intersection(sf_states_zoom)
+            sf::st_intersection(sf_states_zoom) |>
+            filter(!is.na(prediction)) # Remove NA points
         } else {
           # # crop to western US
           # data_proxy <- sf::st_crop(HUC12_centroid,
@@ -445,7 +446,8 @@ function(input, output, session) {
           #                                        ymin = bbox_westus[4],
           #                                        ymax = bbox_westus[2])))
           # CONUS
-          # data_proxy <- HUC12_centroid
+          data_proxy <- data_proxy |>
+            filter(!is.na(prediction)) # Remove NA points
         }## IF ~ rad_map_crop
         
       
@@ -468,7 +470,7 @@ function(input, output, session) {
           leaflet::addCircleMarkers(data = data_proxy,
                                     lng = ~Longitude,
                                     lat = ~Latitude,
-                                    color = "darkgray",
+                                    color = NA, #"darkgray",
                                     fillColor = colorNumeric(
                                       palette = "viridis",
                                       domain = data_proxy$"prediction")(data_proxy$"prediction"),
@@ -569,10 +571,12 @@ function(input, output, session) {
           sf_states_zoom <- sf_states |>
             filter(STUSPS == sel_map_zoom)
           data_proxy <- data_proxy |>
-            sf::st_intersection(sf_states_zoom)
+            sf::st_intersection(sf_states_zoom) |>
+            filter(!is.na(prediction)) # Remove NA points
         } else {
           # CONUS
-          # data_proxy <- HUC12_simple
+          data_proxy <- data_proxy |>
+            filter(!is.na(prediction)) # Remove NA points
         }## IF ~ sel_map_zoom
         
         leaflet::leafletProxy("map_huc") |> # , data = HUC12_simple) |>
@@ -740,7 +744,8 @@ function(input, output, session) {
         min = min(data_proxy$prediction,na.rm = TRUE),
         max = max(data_proxy$prediction,na.rm = TRUE),
         Quartile1st = quantile(data_proxy$prediction, 0.25, na.rm = TRUE),
-        Quartile3rd = quantile(data_proxy$prediction, 0.75, na.rm = TRUE))
+        Quartile3rd = quantile(data_proxy$prediction, 0.75, na.rm = TRUE),
+        n = sum(!is.na(data_proxy$prediction), na.rm = TRUE))
       
      fn_tbl <- file.path(dn_results, "summary_stats.csv")
      write.csv(df_summ_stat,
