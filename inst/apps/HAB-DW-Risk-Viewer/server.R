@@ -610,6 +610,11 @@ function(input, output, session) {
                                                                     fillColor = "green",
                                                                     weight = 3)
                                 ) |>
+          # # Legend
+          # addLegend(pal = "viridis",
+          #           values = data_proxy$"prediction",
+          #           position = "bottomleft"
+          #           ) |>
           # Layers, Control
           addLayersControl(baseGroups = c("Positron",
                                           "Open Street Map",
