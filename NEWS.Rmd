@@ -21,6 +21,10 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.3 (2025-08-20)
+
+* refactor: Bump version number for deliverable
+
 # HAB-DW-Risk-Viewer 0.2.0.9004 (2025-08-20)
 
 * refactor: Make summary figures and table reactive
