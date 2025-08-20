@@ -14,16 +14,20 @@ function() {
                            h3("Update Map"),
                            p(paste0("After making changes below click the button here to update the 'Map' and 'Summary' tabs. ",
                                     "Adding the HUC12 layer takes about 1 minute.")),
-                           bsButton("but_map_update", "Update Map"),
-                           shinyBS::bsTooltip(id = "but_map_update",
-                                              title = paste0("Clicking this button will",
-                                                             " update the 'Map' and 'Summary' tabs."),
-                                              placement = "right"),
+                           bsButton("but_map_update", "Update Map") |>
+                             bsplus::bs_embed_tooltip(
+                               title = paste0("Clicking this button will update",
+                                              " the 'Map' and 'Summary' tabs.")),
+                           # shinyBS::bsTooltip(id = "but_map_update",
+                           #                    title = paste0("Clicking this button will",
+                           #                                   " update the 'Map' and 'Summary' tabs."),
+                           #                    placement = "right"),
                            # hr(),
                            h3("1. Scale"),
                            fluidRow(column(4, 
                                            p(paste0("Choose a scale at which to view the map and summarize model output. ",
-                                                    "Select 'CONUS' to see the entire dataset or select a state to zoom in and get detailed summary.")),
+                                                    "Select 'CONUS' to see the entire dataset or select a state to zoom in and get detailed summary.",
+                                                    "  HUC12 without data will not be shown.")),
                                            selectInput("map_zoom",
                                                        "State:",
                                                        choices = c("CONUS",
@@ -41,7 +45,7 @@ function() {
                                            radioButtons("rad_map_crop",
                                                         "Crop data to selected state?",
                                                         choices = c("Yes", "No"),
-                                                        selected = "Yes")
+                                                        selected = "Yes") 
                                            )
                                     ),
                            # hr(),
@@ -190,13 +194,13 @@ function() {
                    p(textOutput("str_water")),
                    p(textOutput("str_model")),
                    fluidRow(
-                     column(6,
+                     column(5,
                             h4("Variable Importance"),
                             plotOutput("plot_model_varimp"),
                             tableOutput("table_model_varimp")
                             ),
                      column(2),
-                     column(4,
+                     column(5,
                             h4("Model Performance"),
                             plotOutput("plot_model_perf"),
                             tableOutput("table_model_perf")
@@ -206,7 +210,8 @@ function() {
           tabPanel(title = "Summary",
                    # Summary ----
                    p(em("Summary information based on user selections *after* clicking 'Update Map'.")),
-                   hr(),
+                   shinyjs::disabled(downloadButton("b_download_summ"
+                                                      , "Download Summaries and Results")),                   hr(),
                    fluidRow(
                      column(5,
                             p("CDF for selected area of interest."),

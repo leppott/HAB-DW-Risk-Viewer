@@ -59,7 +59,7 @@ function(input, output, session) {
   
   sel_user_pal <- reactive({
     colorNumeric(
-      palette = "viridis",
+      palette = pal_leaflet,
       domain = HUC12_simple[[sel_user_var]]
     )
     
@@ -73,7 +73,7 @@ function(input, output, session) {
   # need a reactive to trigger, use map update button
   observeEvent(input$but_map_update, {
     # shiny::withProgress({
-    
+    # shinycssloaders::showSpinner({
        ### 00, Initialize ----
       # prog_detail <- "Create Map..."
       # message(paste0("\n", prog_detail))
@@ -84,6 +84,10 @@ function(input, output, session) {
       
       # check user selections
       sel_map_water <- input$map_water
+      
+      # disable download until finished updating files
+      # button, disable, download
+      shinyjs::disable("b_download_summ")
       
       # If waterbody = River, pop up with 
       
@@ -450,10 +454,12 @@ function(input, output, session) {
             filter(!is.na(prediction)) # Remove NA points
         }## IF ~ rad_map_crop
         
+
       
         leafletProxy("map_huc") |> #, data = data_proxy) |>
           # add spinner
           # addSpinner() |>
+          # shinycssloaders::showSpinner() |>
           # clean up map before adding to it
           clearControls() |>
           clearShapes() |>
@@ -472,26 +478,35 @@ function(input, output, session) {
                                     lat = ~Latitude,
                                     color = NA, #"darkgray",
                                     fillColor = colorNumeric(
-                                      palette = "viridis",
+                                      palette = pal_leaflet,
                                       domain = data_proxy$"prediction")(data_proxy$"prediction"),
                                     group = "HUC12",
                                     popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
                                                     "Name: ", HU_12_NAME, as.character("<br>"),
                                                     "Waterbody: ", sel_map_water, as.character("<br>"),
                                                     "Model: ", sel_map_model, as.character("<br>"),
-                                                    "Prediction:", round(prediction, 1)
+                                                    "Prediction:", round(prediction, leg_rnd)
                                                     )## paste0 ~ popup
                                     ) |>
-          # # Layers, Control
+          # Layers, Control
           addLayersControl(baseGroups = c("Positron",
                                           "Open Street Map",
                                           "ESRI World Imagery"),
                            overlayGroups = c("HUC12", "States")) |>
-          # # Bounds
+          # Legend
+          addLegend(position = "bottomleft",
+                    title = "Model Prediction",
+                    pal = colorFactor(palette = pal_leaflet,
+                                      domain = round(data_proxy$prediction, leg_rnd)),
+                    na.label = "No Data",
+                    values = round(data_proxy$prediction, leg_rnd)
+                    ) |>
+          # Bounds
           fitBounds(bbox_zoom[1],
                     bbox_zoom[2],
                     bbox_zoom[3],
-                    bbox_zoom[4]) # |>
+                    bbox_zoom[4]) #|>
+          # shinycssloaders::hideSpinner()
           
         # Spinner, Stop
         # stopSpinner()
@@ -515,7 +530,7 @@ function(input, output, session) {
                                     lat = ~Latitude,
                                     color = "darkgray",
                                     fillColor = colorNumeric(
-                                      palette = "viridis",
+                                      palette = pal_leaflet,
                                       domain = HUC12_centroid$"River_Risk")(HUC12_centroid$"River_Risk"),
                                     group = "HUC12",
                                     popup = ~paste0("HUC12: ", HUC_12, as.character("<br>"),
@@ -599,14 +614,14 @@ function(input, output, session) {
                                                 "Name: ", HU_12_NAME, as.character("<br>"),
                                                 "Waterbody: ", sel_map_water, as.character("<br>"),
                                                 "Model: ", sel_map_model, as.character("<br>"),
-                                                "Prediction:", round(prediction, 1)
+                                                "Prediction:", round(prediction, leg_rnd)
                                                 ),
                                  weight = 1,
                                  color = "darkgray",
                                  # fillColor = "skyblue",
                                  # fillColor = ~sel_user_pal(),
                                 fillColor = colorNumeric(
-                                  palette = "viridis",
+                                  palette = pal_leaflet,
                                   domain = data_proxy$"prediction")(data_proxy$"prediction"),
                                 # smoothFactor = 0,
                                 highlightOptions = highlightOptions(bringToFront = TRUE,
@@ -615,15 +630,23 @@ function(input, output, session) {
                                                                     weight = 3)
                                 ) |>
           # # Legend
-          # addLegend(pal = "viridis",
+          # addLegend(pal = pal_leaflet,
+          #           position = "bottomleft",
           #           values = data_proxy$"prediction",
-          #           position = "bottomleft"
           #           ) |>
           # Layers, Control
           addLayersControl(baseGroups = c("Positron",
                                           "Open Street Map",
                                           "ESRI World Imagery"),
                            overlayGroups = c("HUC12", "States")) |>
+          # Legend
+          addLegend(position = "bottomleft",
+                    title = "Model Prediction",
+                    pal = colorFactor(palette = pal_leaflet,
+                                      domain = round(data_proxy$prediction, leg_rnd)),
+                    na.label = "No Data",
+                    values = round(data_proxy$prediction, leg_rnd)
+          ) |>
           # Bounds
           fitBounds(bbox_zoom[1],
                     bbox_zoom[2],
@@ -662,7 +685,7 @@ function(input, output, session) {
                                # fillColor = "skyblue",
                                # fillColor = ~sel_user_pal(),
                                fillColor = colorNumeric(
-                                 palette = "viridis",
+                                 palette = pal_leaflet,
                                  domain = HUC12_rf$"River_Risk")(HUC12_rf$"River_Risk"),
                                smoothFactor = 0,
                                highlightOptions = highlightOptions(bringToFront = TRUE,
@@ -674,6 +697,14 @@ function(input, output, session) {
                                           "Open Street Map",
                                           "ESRI World Imagery"),
                            overlayGroups = "HUC12") |>
+          # Legend
+          addLegend(position = "bottomleft",
+                    title = "Model Prediction",
+                    pal = colorFactor(palette = pal_leaflet,
+                                      domain = round(data_proxy$prediction, leg_rnd)),
+                    na.label = "No Data",
+                    values = round(data_proxy$prediction, leg_rnd)
+          ) |>
           # Bounds
           fitBounds(bbox_zoom[1], 
                     bbox_zoom[2], 
@@ -751,7 +782,17 @@ function(input, output, session) {
      write.csv(df_summ_stat,
                fn_tbl,
                row.names = FALSE)
-      
+     
+     ## 13, Zip ----
+     # Create zip file for download
+     fn_4zip <- list.files(path = dn_results
+                           , full.names = TRUE)
+     zip::zip(file.path(dn_results, "results.zip"), fn_4zip)
+     
+     ## 14, Clean Up----
+     # button, enable, download
+     shinyjs::enable("b_download_summ")
+    # })## showSpinner  
     # })## withProgress
   })## observer ~ but_map_update
   
@@ -948,6 +989,25 @@ function(input, output, session) {
     }## IF ~ file.exists
     
   })
+  
+  ## b_download_summ ----
+  output$b_download_summ <- downloadHandler(
+    
+    filename = function() {
+
+      paste0("HAB_ResultSummary",
+             format(Sys.time(), "%Y%m%d_%H%M%S"),
+             ".zip")
+    } ,
+    content = function(fname) {##content~START
+      
+      file.copy(file.path(dn_results, "results.zip"), fname)
+      
+    }##content~END
+    #, contentType = "application/zip"
+  )##download ~ summ
+  
+  
   ## Model Performance ----
   
   ### Mod Perf, Plot ----

@@ -1,16 +1,14 @@
 # Shiny Global File
 
 # Version ----
-pkg_version <- "0.2.0.9001"
+pkg_version <- "0.2.0.9003"
 
 # Packages ----
 library(shiny)
 library(leaflet)
-# library(leaflet.extras2) # spinner for proxy
 library(shinydashboard)
 library(shinydashboardPlus) # only using for footer
-# library(shinyjs)
-# #library(shinyWidgets)
+library(shinyjs)
 library(shinyBS) # nice buttons
 # library(DT)
 # # masks shinydashboardPlus::progressBar
@@ -19,20 +17,31 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(plotly)
+library(shinycssloaders) # spinner
+library(ranger)
+library(knitr)
+library(rmarkdown)
+library(sf)
+library(classInt)
+library(RColorBrewer)
+library(ie2misc)
+library(zip)
+library(bsplus)  # tooltips
+
+# library(tigris) # state layer (used in data-raw)
+## other, no longer used
 # library(readxl)
 # library(httr)
 # library(reshape2)
-# library(knitr)
 # library(shinyalert)#ok
 # library(geojsonio) # geojson
 # library(jsonlite)  # json
 # library(terra)     # Raster images (TIF)
-library(shinycssloaders) # spinner
+# #library(shinyWidgets)
 # Model plots
 # library(vip)
 # ?error on Data Plots
-library(ranger)
-# library(tigris) # state layer
+# library(leaflet.extras2) # spinner for proxy
 
 # Tabs ----
 db_main_sb            <- source("external/db_main_sb.R", local = TRUE)$value
@@ -221,6 +230,10 @@ plot_width  <- 9
 plot_units  <- "in"
 plot_scale  <- 1.25
 plot_bg     <- "white"
+
+# palette
+pal_leaflet = "viridis"
+leg_rnd <- 3
 
 # Models ----
 ## Models----

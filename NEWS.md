@@ -1,11 +1,23 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-15 14:51:46.768034
+2025-08-20 10:53:14.36386
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-15 14:51:46.816458
+    #> Last Update: 2025-08-20 10:53:14.390855
+
+# HAB-DW-Risk-Viewer 0.2.0.9003 (2025-08-20)
+
+- refactor: Update spinner for leaflet (no longer needed)
+- refactor: Update tooltips to bsplus package
+- refactor: Add legend to map
+- refactor: Add dummy file to results folder
+  - Avoids an empty directory for when load to Shiny server
+
+# HAB-DW-Risk-Viewer 0.2.0.9002 (2025-08-15)
+
+- refactor: Add download button for summary and results
 
 # HAB-DW-Risk-Viewer 0.2.0.9001 (2025-08-15)
 
