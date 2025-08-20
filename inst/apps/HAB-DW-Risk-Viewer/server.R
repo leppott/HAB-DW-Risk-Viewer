@@ -800,8 +800,11 @@ function(input, output, session) {
   # CDF, Bar charts, box plots, etc. 
   
   ### CDF ----
-  # plot_sum_cdf <- eventReactive(input$but_map_range, {
- #  output$plot_summ_cdf <- renderPlot({
+  fn_plot_summ_cdf <- eventReactive(input$but_map_update, {
+    file.path(dn_results, 
+              paste0("plot_summ_cdf.", plot_device))
+  })
+  
   output$plot_summ_cdf <- renderImage({ 
     
     # # respstate is merged scenario and HUC data
@@ -845,9 +848,7 @@ function(input, output, session) {
     
     # plot.ecdf(rnorm(24))
     
-    fn_p <- file.path(dn_results, 
-                      paste0("plot_summ_cdf.", plot_device))
-    list(src = fn_p,
+    list(src = fn_plot_summ_cdf(),
          contentType = 'image/png',
          alt = "CDF plot of user model predictions.")
     
@@ -910,6 +911,11 @@ function(input, output, session) {
   
   
   ### box single variable----
+  fn_plot_summ_box_singlevar <- eventReactive(input$but_map_update, {
+    file.path(dn_results, 
+              paste0("plot_summ_box.", plot_device))
+  })
+  
   output$plot_summ_box_singlevar <- renderImage({ 
   
     # # Plot single variable
@@ -930,9 +936,8 @@ function(input, output, session) {
     # boxplot(mtcars)
     # title("box plot, single variable")
     
-    fn_p <- file.path(dn_results, 
-                      paste0("plot_summ_box.", plot_device))
-    list(src = fn_p,
+
+    list(src = fn_plot_summ_box_singlevar(),
          contentType = 'image/png',
          alt = "Box plot of user model predictions.")
     
@@ -941,6 +946,10 @@ function(input, output, session) {
   ### table----
   
   # Table of Mean Min Max for different variables
+  fn_table_summ <- eventReactive(input$but_map_update, {
+    file.path(dn_results, "summary_stats.csv")
+  })
+  
   output$table_summ <- renderTable({
     
     # # respstate is merged scenario and HUC data
@@ -978,14 +987,12 @@ function(input, output, session) {
     # 
     # mtcars
     
-    fn_tbl <- file.path(dn_results, "summary_stats.csv")
-
     validate(
-      need(fn_tbl, "Update map to create table.")
+      need(fn_table_summ(), "Update map to create table.")
     )## validate
     
-    if (file.exists(fn_tbl)) {
-      read.csv(fn_tbl)
+    if (file.exists(fn_table_summ())) {
+      read.csv(fn_table_summ())
     }## IF ~ file.exists
     
   })
