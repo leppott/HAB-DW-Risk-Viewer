@@ -782,11 +782,12 @@ function(input, output, session) {
      write.csv(df_summ_stat,
                fn_tbl,
                row.names = FALSE)
-     
+   
      ## 13, Zip ----
-     # Create zip file for download
-     fn_4zip <- list.files(path = dn_results
+     # Create zip file for download (no zip)
+     fn_summ <- list.files(path = dn_results
                            , full.names = TRUE)
+     fn_4zip <- fn_summ[!grepl("\\.zip$", fn_summ)]
      zip::zip(file.path(dn_results, "results.zip"), fn_4zip)
      
      ## 14, Clean Up----
@@ -1007,7 +1008,7 @@ function(input, output, session) {
              ".zip")
     } ,
     content = function(fname) {##content~START
-      
+ 
       file.copy(file.path(dn_results, "results.zip"), fname)
       
     }##content~END

@@ -1,11 +1,20 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-21 15:09:00.460399
+2025-08-21 15:38:48.957141
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-21 15:09:00.497929
+    #> Last Update: 2025-08-21 15:38:48.988255
+
+# HAB-DW-Risk-Viewer 0.3.0.9003 (2025-08-21)
+
+- refactor: Update zip file to exclude any zip files in results
+  directory
+
+# HAB-DW-Risk-Viewer 0.3.0.9002 (2025-08-21)
+
+- refactor: Update legend from colorFactor to colorQuantile
 
 # HAB-DW-Risk-Viewer 0.3.0.9001 (2025-08-21)
 
