@@ -178,7 +178,6 @@ function(input, output, session) {
       # incProgress(1/prog_n, detail = prog_detail)
       # Sys.sleep(prog_sleep)
       
-      
       mod_varimp_user[1, "User_Select"] <- input$map_radio_p01
       mod_varimp_user[2, "User_Select"] <- input$map_radio_p02
       mod_varimp_user[3, "User_Select"] <- input$map_radio_p03
@@ -199,7 +198,7 @@ function(input, output, session) {
       mod_varimp_user[18, "User_Select"] <- input$map_radio_p18
       mod_varimp_user[19, "User_Select"] <- input$map_radio_p19
       mod_varimp_user[20, "User_Select"] <- input$map_radio_p20
- 
+
       # TEMP - create model input file
       # variable == mod_varimp_user[1, "Variable"]
       # user_select == mod_varimp_user[1, "User_Select"]

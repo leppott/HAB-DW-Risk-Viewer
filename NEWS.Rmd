@@ -21,6 +21,13 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.3.0.9004 (2025-08-21)
+
+* refactor: Update prediction data
+    + Remove extra records from mean and median
+    + Add column HABs_Treat_Score2
+        - Value of 0
+
 # HAB-DW-Risk-Viewer 0.3.0.9003 (2025-08-21)
 
 * refactor: Update zip file to exclude any zip files in results directory
