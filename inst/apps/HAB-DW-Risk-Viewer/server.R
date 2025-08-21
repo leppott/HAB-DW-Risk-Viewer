@@ -203,130 +203,130 @@ function(input, output, session) {
       # TEMP - create model input file
       # variable == mod_varimp_user[1, "Variable"]
       # user_select == mod_varimp_user[1, "User_Select"]
-      # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
+      # user_values == mod_pred_list [["1st quartile"]][, "Lake_Chla"]
       # update values based on user selections
-      mod_scen_user <- mod_scen_mean # default
+      mod_pred_user <- mod_pred_mean # default
       #
       # 01
       var_num <- 1
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 02
       var_num <- 2
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 03
       var_num <- 3
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 04
       var_num <- 4
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 05
       var_num <- 5
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 06
       var_num <- 6
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 07
       var_num <- 7
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 08
       var_num <- 8
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 09
       var_num <- 9
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 10
       var_num <- 10
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 11
       var_num <- 11
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 12
       var_num <- 12
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 13
       var_num <- 13
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 14
       var_num <- 14
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 15
       var_num <- 15
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 16
       var_num <- 16
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 17
       var_num <- 17
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 18
       var_num <- 18
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 19
       var_num <- 19
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       # 20
       var_num <- 20
       update_variable    <- mod_varimp_user[var_num, "Variable"]
       update_user_select <- mod_varimp_user[var_num, "User_Select"]
-      mod_scen_user[, update_variable] <- 
-        mod_scen_list[[update_user_select]][, update_variable]
+      mod_pred_user[, update_variable] <- 
+        mod_pred_list[[update_user_select]][, update_variable]
       
       # save
       # ok to resave file
@@ -334,7 +334,7 @@ function(input, output, session) {
                 file.path("results", 
                           "model_variable_importance.csv"),
                 row.names = FALSE)
-      write.csv(mod_scen_user, 
+      write.csv(mod_pred_user, 
                 file.path("results", 
                           "model_scenario_user_values.csv"),
                 row.names = FALSE)
@@ -348,7 +348,7 @@ function(input, output, session) {
 
       # model == rfr_ranger (based on user selection)
       # prediction data == mean data with user mods for top 20
-      mod_pred_data <- mod_scen_user
+      mod_pred_data <- mod_pred_user
       # remove NA
       mod_pred_data_naomit <- na.omit(mod_pred_data)
       # drop HUC12
@@ -1284,132 +1284,132 @@ function(input, output, session) {
     # TEMP - create model input file
     # variable == mod_varimp_user[1, "Variable"]
     # user_select == mod_varimp_user[1, "User_Select"]
-    # user_values == mod_scen_list [["1st quartile"]][, "Lake_Chla"]
+    # user_values == mod_pred_list [["1st quartile"]][, "Lake_Chla"]
     # update values based on user selections
-    mod_scen_user <- mod_scen_mean # default
+    mod_pred_user <- mod_pred_mean # default
     #
     # 01
     var_num <- 1
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 02
     var_num <- 2
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 03
     var_num <- 3
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 04
     var_num <- 4
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 05
     var_num <- 5
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 06
     var_num <- 6
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 07
     var_num <- 7
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 08
     var_num <- 8
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 09
     var_num <- 9
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 10
     var_num <- 10
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 11
     var_num <- 11
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 12
     var_num <- 12
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 13
     var_num <- 13
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 14
     var_num <- 14
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 15
     var_num <- 15
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 16
     var_num <- 16
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 17
     var_num <- 17
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 18
     var_num <- 18
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 19
     var_num <- 19
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     # 20
     var_num <- 20
     update_variable    <- mod_varimp_user[var_num, "Variable"]
     update_user_select <- mod_varimp_user[var_num, "User_Select"]
-    mod_scen_user[, update_variable] <- 
-      mod_scen_list[[update_user_select]][, update_variable]
+    mod_pred_user[, update_variable] <- 
+      mod_pred_list[[update_user_select]][, update_variable]
     
-    # mod_scen_user 
+    # mod_pred_user 
     # updated to "mean" values 
     # top 20 variables updated to user selections
     
@@ -1417,7 +1417,7 @@ function(input, output, session) {
     write.csv(mod_varimp_user, 
               file.path("results", "model_variable_importance.csv"),
               row.names = FALSE)
-    write.csv(mod_scen_user, 
+    write.csv(mod_pred_user, 
               file.path("results", "model_scenario_user_values.csv"),
               row.names = FALSE)
     

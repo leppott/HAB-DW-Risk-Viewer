@@ -1,7 +1,7 @@
 # Shiny Global File
 
 # Version ----
-pkg_version <- "0.3"
+pkg_version <- "0.3.0.9001"
 
 # Packages ----
 library(shiny)
@@ -55,6 +55,7 @@ tab_code_troubleshoot <- source("external/tab_troubleshoot.R"
 # Global ----
 dn_data <- "data"
 dn_results <- "results"
+dn_prediction <- "data_prediction"
 
 
 # remove files
@@ -261,37 +262,37 @@ rfr_Viol_Risk_model  <- readRDS(file.path("data",
 mod_var_types <- read.csv(file.path("data",
                                     "models",
                                     "model_variable_types.csv"))
-## Models, Scenario Data ----
-mod_scen_q1     <- read.csv(file.path("data",
+## Models, Prediction Data ----
+mod_pred_q1     <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_1stQ.csv"))
-mod_scen_q3     <- read.csv(file.path("data",
+                                      "data_prediction",
+                                      "Prediction_Dataset_1stQ.csv"))
+mod_pred_q3     <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_3rdQ.csv"))
-mod_scen_min    <- read.csv(file.path("data",
+                                      "data_prediction",
+                                      "Prediction_Dataset_3rdQ.csv"))
+mod_pred_min    <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_min.csv"))
-mod_scen_max    <- read.csv(file.path("data",
+                                      "data_prediction",
+                                      "Prediction_Dataset_min.csv"))
+mod_pred_max    <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_max.csv"))
-mod_scen_mean   <- read.csv(file.path("data",
+                                      "data_prediction",
+                                      "Prediction_Dataset_max.csv"))
+mod_pred_mean   <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_mean.csv"))
-mod_scen_median <- read.csv(file.path("data",
+                                      "data_prediction",
+                                      "Prediction_Dataset_mean.csv"))
+mod_pred_median <- read.csv(file.path("data",
                                       "models",
-                                      "scenario_data",
-                                      "Scenario_Dataset_median.csv"))
-mod_scen_list <- list("1st quartile" = mod_scen_q1,
-                      "3rd quartile" = mod_scen_q3,
-                      min = mod_scen_min,
-                      max = mod_scen_max,
-                      mean = mod_scen_mean,
-                      median = mod_scen_median
+                                      "data_prediction",
+                                      "Prediction_Dataset_median.csv"))
+mod_pred_list <- list("1st quartile" = mod_pred_q1,
+                      "3rd quartile" = mod_pred_q3,
+                      min = mod_pred_min,
+                      max = mod_pred_max,
+                      mean = mod_pred_mean,
+                      median = mod_pred_median
                       )
 # used names from model_scenarios so can reference from radio button selections
 
