@@ -477,7 +477,7 @@ function(input, output, session) {
                                     lng = ~Longitude,
                                     lat = ~Latitude,
                                     color = NA, #"darkgray",
-                                    fillColor = colorNumeric(
+                                    fillColor = leaflet::colorNumeric(
                                       palette = pal_leaflet,
                                       domain = data_proxy$"prediction")(data_proxy$"prediction"),
                                     group = "HUC12",
@@ -496,7 +496,7 @@ function(input, output, session) {
           # Legend
           addLegend(position = "bottomleft",
                     title = "Model Prediction",
-                    pal = colorFactor(palette = pal_leaflet,
+                    pal = leaflet::colorQuantile(palette = pal_leaflet,
                                       domain = round(data_proxy$prediction, leg_rnd)),
                     na.label = "No Data",
                     values = round(data_proxy$prediction, leg_rnd)
@@ -620,7 +620,7 @@ function(input, output, session) {
                                  color = "darkgray",
                                  # fillColor = "skyblue",
                                  # fillColor = ~sel_user_pal(),
-                                fillColor = colorNumeric(
+                                fillColor = leaflet::colorNumeric(
                                   palette = pal_leaflet,
                                   domain = data_proxy$"prediction")(data_proxy$"prediction"),
                                 # smoothFactor = 0,
@@ -642,7 +642,7 @@ function(input, output, session) {
           # Legend
           addLegend(position = "bottomleft",
                     title = "Model Prediction",
-                    pal = colorFactor(palette = pal_leaflet,
+                    pal = leaflet::colorQuantile(palette = pal_leaflet,
                                       domain = round(data_proxy$prediction, leg_rnd)),
                     na.label = "No Data",
                     values = round(data_proxy$prediction, leg_rnd)
