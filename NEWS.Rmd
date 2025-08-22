@@ -21,6 +21,10 @@ knitr::opts_chunk$set(
 cat(paste0("Last Update: ",Sys.time()))
 ```
 
+# HAB-DW-Risk-Viewer 0.3.0.9005 (2025-08-22)
+
+* tests: Check prediction datasets for all model variables
+
 # HAB-DW-Risk-Viewer 0.3.0.9004 (2025-08-21)
 
 * refactor: Update prediction data
