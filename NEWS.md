@@ -1,11 +1,15 @@
 HAB-DW-Risk-Viewer-NEWS
 ================
 <Erik.Leppo@tetratech.com>
-2025-08-22 08:38:43.916228
+2025-08-22 14:34:56.63649
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
-    #> Last Update: 2025-08-22 08:38:43.966779
+    #> Last Update: 2025-08-22 14:34:56.667995
+
+# HAB-DW-Risk-Viewer 0.3.0.9006 (2025-08-22)
+
+- tests: Update prediction dataset tests to save missing values
 
 # HAB-DW-Risk-Viewer 0.3.0.9005 (2025-08-22)
 

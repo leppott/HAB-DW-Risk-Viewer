@@ -208,11 +208,15 @@ testthat::test_that("ORWA, pickfiles, filenames", {
   testthat::expect_true(all(mod_varimp_viol %in% var_pred_median))
   
   ## Mismatches ----
-  #**ONLY CYAN**
+  df_missing <- data.frame(model = NA,
+                           stat = NA,
+                           variable = NA)
+
   ### cyan ----
   mod_name      <- "cyan"
+  var_mod_test  <- mod_varimp_cyan
+  #
   pred_name     <- "q1"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -223,10 +227,12 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
   #  
-  mod_name      <- "cyan"
   pred_name     <- "q3"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -237,10 +243,12 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
   #  
-  mod_name      <- "cyan"
   pred_name     <- "min"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -251,10 +259,12 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
   #  
-  mod_name      <- "cyan"
   pred_name     <- "max"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -265,10 +275,12 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
   #  
-  mod_name      <- "cyan"
   pred_name     <- "mean"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -279,10 +291,12 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
   #  
-  mod_name      <- "cyan"
   pred_name     <- "median"
-  var_mod_test  <- mod_varimp_cyan
   var_pred_test <- var_pred_q1
   var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
   msg <- paste0("\nModel variables (",
@@ -293,6 +307,608 @@ testthat::test_that("ORWA, pickfiles, filenames", {
                 paste(var_nonmatch, collapse = "\n"),
                 "\n\n")
   message(msg)
-  
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### dbp ----
+  mod_name      <- "dbp"
+  var_mod_test  <- mod_varimp_dbp
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### dwops ----
+  mod_name      <- "dwops"
+  var_mod_test  <- mod_varimp_dwops
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### habdw ----
+  mod_name      <- "habdw"
+  var_mod_test  <- mod_varimp_habdw
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### lake ----
+  mod_name      <- "lake"
+  var_mod_test  <- mod_varimp_lake
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### treat ----
+  mod_name      <- "treat"
+  var_mod_test  <- mod_varimp_treat
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  ### viol ----
+  mod_name      <- "viol"
+  var_mod_test  <- mod_varimp_viol
+  #
+  pred_name     <- "q1"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "q3"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "min"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "max"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "mean"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #  
+  pred_name     <- "median"
+  var_pred_test <- var_pred_q1
+  var_nonmatch  <- var_mod_test[!var_mod_test %in% var_pred_test]
+  msg <- paste0("\nModel variables (",
+                mod_name,
+                ") not in prediction data (",
+                pred_name,
+                "):\n",
+                paste(var_nonmatch, collapse = "\n"),
+                "\n\n")
+  message(msg)
+  df_test <- data.frame(model = mod_name,
+                        stat = pred_name,
+                        variable = var_nonmatch)
+  df_missing <- rbind(df_missing, df_test)
+  #
+  ## save missing ----
+  write.csv(df_missing,
+            "missing_params.csv",
+            row.names = FALSE)
 })## Test ~ Columns
 
